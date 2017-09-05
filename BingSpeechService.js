@@ -17,6 +17,7 @@ const receivedTelemetryTemplate = {
     "speech.hypothesis": [],
     "speech.endDetected": [],
     "speech.phrase": [],
+    "speech.fragment": [],
     "turn.end": []
   };
 
