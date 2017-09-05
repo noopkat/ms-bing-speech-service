@@ -88,7 +88,7 @@ Disconnects from the established websocket connection to the Speech API. Callbac
 
 ```js
 recognizer.stop((error) => {
-  if (!error) console.log('translator service stopped.');
+  if (!error) console.log('recognizer service stopped.');
 });
 ```
 
