@@ -26,14 +26,17 @@ const richPaths = ['speech.phrase', 'speech.hypothesis', 'speech.fragment'];
 const defaultOptions = {
   format: 'simple',
   language:'en-US',
-  mode: 'conversation'
+  mode: 'conversation',
+  issueTokenUrl: 'https://api.cognitive.microsoft.com/sts/v1.0/issueToken'
 };
 
 function BingSpeechService (options) {
   this.options = Object.assign({}, defaultOptions, options);
-  this.issueTokenUrl = 'https://api.cognitive.microsoft.com/sts/v1.0/issueToken';
 
-  this.serviceUrl = `wss://speech.platform.bing.com/speech/recognition/${this.options.mode}/cognitiveservices/v1?language=${this.options.language}&format=${this.options.format}`;
+  const bingServiceUrl = `wss://speech.platform.bing.com/speech/recognition/${this.options.mode}/cognitiveservices/v1?language=${this.options.language}&format=${this.options.format}`;
+
+  this.serviceUrl = this.options.serviceUrl || bingServiceUrl;
+  this.issueTokenUrl = this.options.issueTokenUrl;
 
   this.telemetry = {
     "Metrics": [],

@@ -12,6 +12,8 @@
 
 ## Usage
 
+### Bing Speech
+
 You'll first need to [create a Microsoft Bing Speech API key](https://azure.microsoft.com/en-us/services/cognitive-services). You can do this while logged in to the Azure Portal.
 
 The following code will get you up and running with the essentials:
@@ -22,7 +24,7 @@ const speechService = require('ms-bing-speech-service');
 const options = {
   language: 'en-US',
   subscriptionKey: '<your Bing Speech API key>' 
-}
+};
 
 const recognizer = new speechService(options);
 
@@ -40,6 +42,41 @@ recognizer.start((error, service) => {
 
 
 ```
+
+### Custom Speech Service
+
+Yes! You can totally use this with [Custom Speech Service](https://cris.ai). You'll need a few more details in your options object, though.
+
+Your subscriptionKey will be the key displayed on your custom endpoint deployment page in the [Custom Speech Management Portal](https://cris.ai). There, you can also find your websocket endpoint of choice to use.
+
+The following code will get you up and running with the Custom Speech Service:
+
+```js
+const speechService = require('ms-bing-speech-service');
+
+const options = {
+  subscriptionKey: '<your Custom Speech Service subscription key>',
+  serviceUrl: 'wss://<your endpoint id>.api.cris.ai/speech/recognition/conversation/cognitiveservices/v1',
+  issueTokenUrl: 'https://westus.api.cognitive.microsoft.com/sts/v1.0/issueToken'
+};
+
+const recognizer = new speechService(options);
+
+recognizer.start((error, service) => {
+  if (!error) {
+    console.log('custom speech service started');
+
+    service.on('recognition', (e) => {
+      if (e.RecognitionStatus === 'Success') console.log(e);
+    });
+
+    service.sendFile('future-of-flying.wav');
+  }
+});
+
+
+```
+
 
 See the [API section](#api-reference) of these docs for details on configuration and methods.
 
