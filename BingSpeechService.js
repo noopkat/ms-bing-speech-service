@@ -72,7 +72,7 @@ BingSpeechService.prototype.sendChunk = function(chunk) {
   this._sendToSocketServer(data); 
 }
 
-BingSpeechService.prototype.sendStream = function(inputStream){
+BingSpeechService.prototype.sendStream = function(inputStream, callback){
   this.currentTurnGuid = uuid.v4().replace(/-/g, '');
 
   this.telemetry.Metrics.push({
@@ -83,8 +83,9 @@ BingSpeechService.prototype.sendStream = function(inputStream){
 
   inputStream.on('data', this.sendChunk.bind(this));
 
-  inputStream.on('end',function(){
+  inputStream.on('end',function() {
       debug('audio stream end');
+      if (callback) return callback();
   });
 }
 
