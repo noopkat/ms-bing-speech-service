@@ -1,0 +1,31 @@
+{
+  "name": "ms-bing-speech-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "BingSpeechService.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Suz Hinton",
+  "license": "MIT",
+  "dependencies": {
+    "request": "^2.81.0",
+    "stream-buffers": "^3.0.1",
+    "websocket": "^1.0.24",
+    "debug": "^3.0.1"
+  },
+  "devDependencies": {
+    "dotenv": "^4.0.0"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/noopkat/ms-bing-speech-service.git"
+  },
+  "bugs": {
+    "url": "https://github.com/noopkat/ms-bing-speech-service/issues"
+  },
+  "homepage": "https://github.com/noopkat/ms-bing-speech-service#readme"
+}
