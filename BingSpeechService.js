@@ -11,6 +11,15 @@ const streamBuffers = require('stream-buffers');
 const protocolHelper = require('./lib/protocolHelper.js');
 const messageParser = require('./lib/messageParser.js');
 
+const receivedTelemetryTemplate = {
+    "turn.start": [],
+    "speech.startDetected": [],
+    "speech.hypothesis": [],
+    "speech.endDetected": [],
+    "speech.phrase": [],
+    "turn.end": []
+  };
+
 const defaultOptions = {
   format: 'simple',
   language:'en-US',
@@ -23,25 +32,23 @@ function BingSpeechService (options) {
 
   this.serviceUrl = `wss://speech.platform.bing.com/speech/recognition/${this.options.mode}/cognitiveservices/v1?language=${this.options.language}&format=${this.options.format}`;
 
-  this._resetTelemetry();
+  this.telemetry = {
+    "Metrics": [],
+    "ReceivedMessages": receivedTelemetryTemplate 
+  };
 
   events.EventEmitter.call(this);
  };
 
 util.inherits(BingSpeechService, events.EventEmitter);
 
-BingSpeechService.prototype._resetTelemetry = function() {
-  this.telemetry = {
-    "Metrics": [],
-    "ReceivedMessages": {
-      "turn.start": [],
-      "speech.startDetected": [],
-      "speech.hypothesis": [],
-      "speech.endDetected": [],
-      "speech.phrase": [],
-      "turn.end": []
-    }
-  };
+BingSpeechService.prototype._resetTelemetry = function(props) {
+  
+  const metrics = props.includes('Metrics') ? [] : this.telemetry.Metrics;
+  const receivedMessages = props.includes('ReceivedMessages') ? receivedTelemetryTemplate : this.telemetry.ReceivedMessages;
+
+  this.telemetry.Metrics = metrics;
+  this.telemetry.ReceivedMessages = receivedMessages;
 }
 
 BingSpeechService.prototype._sendToSocketServer = function(item) {
@@ -55,22 +62,24 @@ BingSpeechService.prototype._sendToSocketServer = function(item) {
 }
 
 BingSpeechService.prototype.sendChunk = function(chunk) {
-  const data = protocolHelper.createAudioPacket(this.guid, chunk);
+  const data = protocolHelper.createAudioPacket(this.currentTurnGuid, chunk);
   this._sendToSocketServer(data); 
 }
 
 BingSpeechService.prototype.sendStream = function(inputStream){
-    this.telemetry.Metrics.push({
-        Start:new Date().toISOString(),
-        Name:'Microphone',
-        End : new Date().toISOString(),
-    });
+  this.currentTurnGuid = uuid.v4().replace(/-/g, '');
 
-    inputStream.on('data', this.sendChunk.bind(this));
+  this.telemetry.Metrics.push({
+      Start: new Date().toISOString(),
+      Name:'Microphone',
+      End : '',
+  });
 
-    inputStream.on('end',function(){
-        debug('audio stream end');
-    });
+  inputStream.on('data', this.sendChunk.bind(this));
+
+  inputStream.on('end',function(){
+      debug('audio stream end');
+  });
 }
 
 const _sendFile = function(filepath, callback) {
@@ -136,24 +145,28 @@ BingSpeechService.prototype.onMessage = function(data) {
     this.connection.emit('recognition', body);
   }
 
+  if (messagePath === 'speech.endDetected') {
+    const microphoneMetric = this.telemetry.Metrics.filter((m) => m.Name === 'Microphone').pop();
+    microphoneMetric.End = new Date().toISOString();
+  };
+
   if (messagePath === 'turn.end') {
       // send telemetry metrics to keep websocket open at each turn end
-      const ackBuffer = protocolHelper.createTelemetryPacket(this.guid, this.telemetry);
-      this._sendToSocketServer(ackBuffer);
+      const telemetryResponse = protocolHelper.createTelemetryPacket(this.currentTurnGuid, this.telemetry);
+      this._sendToSocketServer(telemetryResponse);
 
-      // TODO: I don't think resetting is recommended but I should look it up
-      //this._resetTelemetry();
+      this._resetTelemetry(['ReceivedMessages']);
   }
 };
 
 BingSpeechService.prototype.start = function(callback) {
   const _this = this;
-  this.guid = uuid.v4().replace(/-/g, '');
+  this.connectionGuid = uuid.v4().replace(/-/g, '');
 
   this._requestAccessToken((error, accessToken) => {
     this.telemetry.Metrics.push({
        Name: "Connection",
-       Id: this.guid,
+       Id: this.connectionGuid,
        Start: new Date().toISOString(),
        End: ""
     });
@@ -170,7 +183,7 @@ BingSpeechService.prototype._connectToWebsocket = function(accessToken, callback
 
   const wsOptions = {
     'Authorization': `Bearer ${accessToken}`,
-    'X-ConnectionId': this.guid
+    'X-ConnectionId': this.connectionGuid
   };
   client.connect(this.serviceUrl, null, null, wsOptions);
 };
@@ -194,7 +207,7 @@ BingSpeechService.prototype._setUpClientEvents = function(client, callback) {
 
     debug('sending config packet');
 
-    const initialisationPayload = protocolHelper.createSpeechConfigPacket(this.guid);
+    const initialisationPayload = protocolHelper.createSpeechConfigPacket(this.connectionGuid);
     this._sendToSocketServer(initialisationPayload);
 
     this.emit('connect');
