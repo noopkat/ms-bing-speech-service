@@ -21,6 +21,8 @@ const receivedTelemetryTemplate = {
     "turn.end": []
   };
 
+const richPaths = ['speech.phrase', 'speech.hypothesis', 'speech.fragment']; 
+
 const defaultOptions = {
   format: 'simple',
   language:'en-US',
@@ -134,7 +136,9 @@ BingSpeechService.prototype.onMessage = function(data) {
   debug(messagePath);
 
   // emit type of event
-  this.connection.emit(messagePath);
+  const body = richPaths.includes(messagePath) ? JSON.parse(message.body) : {}; 
+  this.connection.emit(messagePath, body);
+
   // also emit to the raw data firehose
   this.connection.emit('data', JSON.stringify(data.utf8Data));
 
@@ -142,7 +146,6 @@ BingSpeechService.prototype.onMessage = function(data) {
   this.telemetry.ReceivedMessages[messagePath].push(new Date().toISOString());
   
   if (messagePath === 'speech.phrase') {
-    const body = JSON.parse(message.body);
     this.connection.emit('recognition', body);
   }
 
@@ -176,6 +179,13 @@ BingSpeechService.prototype.start = function(callback) {
   });
 };
 
+BingSpeechService.prototype.stop = function(callback) {
+  if (!this.connection) return callback(null);
+  if (callback) this.connection.once('close', callback);
+  this.connection.close();
+  debug('closed speech websocket connection');
+};
+
 BingSpeechService.prototype._connectToWebsocket = function(accessToken, callback) {
   const client = new ws();
   this._setUpClientEvents(client, callback);
@@ -190,9 +200,9 @@ BingSpeechService.prototype._connectToWebsocket = function(accessToken, callback
 };
 
 BingSpeechService.prototype._setUpClientEvents = function(client, callback) {
-  client.on('connectFailed', (error) => debug(error));            
+  client.once('connectFailed', (error) => debug(error));            
 
-  client.on('connect', (connection) => {
+  client.once('connect', (connection) => {
     debug('connected to websocket');
 
     this.connection = connection;
