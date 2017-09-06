@@ -125,16 +125,17 @@ BingSpeechService.prototype._requestAccessToken = function(callback) {
      'Ocp-Apim-Subscription-Key': this.options.subscriptionKey 
     }
   };
-   
+  
+  debug('requesting access token'); 
   // request token
   request.post(postRequest, (error, response, body) => {
+    if (!error) debug('access token request successful');
     return callback(error, body);
   }); 
 };
 
 BingSpeechService.prototype.onMessage = function(data) {
   const message = messageParser.parse(data.utf8Data);
-
   const messagePath = message.path;
 
   debug(messagePath);
@@ -168,7 +169,6 @@ BingSpeechService.prototype.onMessage = function(data) {
 };
 
 BingSpeechService.prototype.start = function(callback) {
-  const _this = this;
   this.connectionGuid = uuid.v4().replace(/-/g, '');
 
   this._requestAccessToken((error, accessToken) => {
