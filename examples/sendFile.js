@@ -23,7 +23,7 @@ socket.start((error, service) => {
   // optional telemetry events to listen to
   service.on('speech.startDetected', () => console.log('speech start detected'));
   service.on('speech.endDetected', () => console.log('speech end detected'));
-  service.on('turn.start', () => console.log('speech turn started'));
+  service.on('turn.start', () => console.log('speech turn started', service.turn.active));
 
   // turn end means another audio sample can be sent if desired
   service.on('turn.end', () => {

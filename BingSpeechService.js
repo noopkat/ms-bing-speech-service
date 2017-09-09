@@ -137,19 +137,14 @@ BingSpeechService.prototype._requestAccessToken = function(callback) {
 BingSpeechService.prototype.onMessage = function(data) {
   const message = messageParser.parse(data.utf8Data);
   const messagePath = message.path;
+  const body = richPaths.includes(messagePath) ? JSON.parse(message.body) : {}; 
 
   debug(messagePath);
 
-  // emit type of event
-  const body = richPaths.includes(messagePath) ? JSON.parse(message.body) : {}; 
-  this.connection.emit(messagePath, body);
+  if (messagePath === 'turn.start') {
+    this.connection.turn.active = true;
+  }
 
-  // also emit to the raw data firehose
-  this.connection.emit('data', JSON.stringify(data.utf8Data));
-
-  // push the message to telemetry
-  this.telemetry.ReceivedMessages[messagePath].push(new Date().toISOString());
-  
   if (messagePath === 'speech.phrase') {
     this.connection.emit('recognition', body);
   }
@@ -160,12 +155,22 @@ BingSpeechService.prototype.onMessage = function(data) {
   };
 
   if (messagePath === 'turn.end') {
-      // send telemetry metrics to keep websocket open at each turn end
-      const telemetryResponse = protocolHelper.createTelemetryPacket(this.currentTurnGuid, this.telemetry);
-      this._sendToSocketServer(telemetryResponse);
+    this.connection.turn.active = false;
+    // send telemetry metrics to keep websocket open at each turn end
+    const telemetryResponse = protocolHelper.createTelemetryPacket(this.currentTurnGuid, this.telemetry);
+    this._sendToSocketServer(telemetryResponse);
 
-      this._resetTelemetry(['ReceivedMessages']);
+    this._resetTelemetry(['ReceivedMessages']);
   }
+
+  // push the message to telemetry
+  this.telemetry.ReceivedMessages[messagePath].push(new Date().toISOString());
+  
+  // emit type of event
+  this.connection.emit(messagePath, body);
+
+  // also emit to the raw data firehose
+  this.connection.emit('data', JSON.stringify(data.utf8Data));
 };
 
 BingSpeechService.prototype.start = function(callback) {
@@ -211,6 +216,9 @@ BingSpeechService.prototype._setUpClientEvents = function(client, callback) {
 
     this.connection = connection;
     this.connection.sendFile = _sendFile.bind(this);
+    this.connection.turn = {
+      active: false
+    };
 
     // update connection metric to when the metric ended
     this.telemetry.Metrics[0].End = new Date().toISOString();
