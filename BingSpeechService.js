@@ -43,6 +43,9 @@ function BingSpeechService (options) {
     "ReceivedMessages": receivedTelemetryTemplate 
   };
 
+  // prepare first request id for the initial turn start
+  this.currentTurnGuid = uuid.v4().replace(/-/g, '');
+
   events.EventEmitter.call(this);
  };
 
@@ -73,7 +76,6 @@ BingSpeechService.prototype.sendChunk = function(chunk) {
 }
 
 BingSpeechService.prototype.sendStream = function(inputStream, callback){
-  this.currentTurnGuid = uuid.v4().replace(/-/g, '');
 
   this.telemetry.Metrics.push({
       Start: new Date().toISOString(),
@@ -156,11 +158,16 @@ BingSpeechService.prototype.onMessage = function(data) {
 
   if (messagePath === 'turn.end') {
     this.connection.turn.active = false;
+
     // send telemetry metrics to keep websocket open at each turn end
     const telemetryResponse = protocolHelper.createTelemetryPacket(this.currentTurnGuid, this.telemetry);
     this._sendToSocketServer(telemetryResponse);
 
+    // clear the messages telemetry for the next turn
     this._resetTelemetry(['ReceivedMessages']);
+
+    // rotate currentTurnGuid ready for the next turn
+    this.currentTurnGuid = uuid.v4().replace(/-/g, '');
   }
 
   // push the message to telemetry
