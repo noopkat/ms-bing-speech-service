@@ -25,7 +25,7 @@ const richPaths = ['speech.phrase', 'speech.hypothesis', 'speech.fragment'];
 
 const defaultOptions = {
   format: 'simple',
-  language:'en-US',
+ language:'en-US',
   mode: 'conversation',
   issueTokenUrl: 'https://api.cognitive.microsoft.com/sts/v1.0/issueToken'
 };
@@ -196,7 +196,7 @@ BingSpeechService.prototype.start = function(callback) {
 };
 
 BingSpeechService.prototype.stop = function(callback) {
-  if (!this.connection) return callback(null);
+  if (!this.connection || !this.connection.connected) return callback(null);
   if (callback) this.connection.once('close', callback);
   this.connection.close();
   debug('closed speech websocket connection');
