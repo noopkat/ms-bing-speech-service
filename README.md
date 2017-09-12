@@ -127,7 +127,7 @@ recognizer.stop((error) => {
 });
 ```
 
-### service.sendStream(stream)
+### recognizer.sendStream(stream)
 
 + `stream` _Readable Stream_
 
@@ -136,7 +136,7 @@ Sends an audio payload stream to the Speech API websocket connection. Audio payl
 See the 'Sending Audio' section of the [official Speech API docs](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/api-reference-rest/websocketprotocol#supported-audio-encodings) for details on the data format needed.
 
 ```js
-service.sendStream(myAudioBufferStream);
+recognizer.sendStream(myAudioBufferStream);
 ```
 
 ### service.sendFile(filepath, callback)
