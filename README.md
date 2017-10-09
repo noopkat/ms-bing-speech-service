@@ -23,7 +23,7 @@ const speechService = require('ms-bing-speech-service');
 
 const options = {
   language: 'en-US',
-  subscriptionKey: '<your Bing Speech API key>' 
+  subscriptionKey: '<your Bing Speech API key>'
 };
 
 const recognizer = new speechService(options);
@@ -41,6 +41,21 @@ recognizer.start((error, service) => {
 });
 
 ```
+
+This configuration will use your subscription key to create an access token with Microsoft's service.
+
+In some instances you may not want to share your subscription key directly with your application. If you're creating an app with multiple users, you may want to issue access tokens from an external API so each user can connect to the speech service without exposing your subscription key.
+
+To do this, replace "subscriptionKey" in the above code example with "accessToken" and pass in the provided token.
+
+```js
+const options = {
+    language: 'en-US',
+    accessToken: '<your access token here>'
+};
+
+```
+
 
 ### Custom Speech Service
 
@@ -191,7 +206,7 @@ service.on('close', () => {
 
 + `callback` _Function_
 
-Event listener for incoming Speech API websocket connection errors. 
+Event listener for incoming Speech API websocket connection errors.
 
 
 ```js
