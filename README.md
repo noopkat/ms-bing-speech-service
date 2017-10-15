@@ -117,6 +117,7 @@ Available options are below:
 | `language`                | `String`  | the language you want to translate from. See supported languages in the [official Microsoft Bing Speech API docs](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/api-reference-rest/bingvoicerecognition#recognition-language).                                                                  | `'en-US'`  | no       |
 | `mode` | `String` | which recognition mode you'd like to use. Choose from `interative`, `conversation`, or `dictation`                          | `'conversation'` | no       |
 | `format` | `String` | file format you'd like the text to speech to be returned as. Choose from `simple` or `detailed`                          | `'simple'` | no       |
+| `proxy` | `String` | only if you need proxy support. Supply the proxy url, example `'https://mywebsite.com:1234'` | `null` | no       |
 
 
 ### recognizer.start(callback)

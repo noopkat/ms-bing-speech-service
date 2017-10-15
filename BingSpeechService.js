@@ -7,6 +7,7 @@ const path = require('path');
 const request = require('request');
 const debug = require('debug')('speechService');
 const streamBuffers = require('stream-buffers');
+const HttpsProxyAgent = require('https-proxy-agent');
 
 const protocolHelper = require('./lib/protocolHelper.js');
 const messageParser = require('./lib/messageParser.js');
@@ -28,7 +29,8 @@ const defaultOptions = {
     language:'en-US',
     mode: 'conversation',
     issueTokenUrl: 'https://api.cognitive.microsoft.com/sts/v1.0/issueToken',
-    accessToken: null
+    accessToken: null,
+    proxy: null
 };
 
 function BingSpeechService (options) {
@@ -122,7 +124,7 @@ const _sendFile = function(filepath, callback) {
 };
 
 BingSpeechService.prototype._getAccessToken = function(callback) {
-    if(this.options.accessToken) {
+    if (this.options.accessToken) {
         return callback(null, this.options.accessToken);
     }
     this._requestAccessToken(callback);
@@ -135,6 +137,10 @@ BingSpeechService.prototype._requestAccessToken = function(callback) {
             'Ocp-Apim-Subscription-Key': this.options.subscriptionKey
         }
     };
+
+    if (this.options.proxy) {
+      postRequest.agent = new HttpsProxyAgent(this.options.proxy); 
+    }
 
     debug('requesting access token');
     // request token
@@ -220,7 +226,13 @@ BingSpeechService.prototype._connectToWebsocket = function(accessToken, callback
         'Authorization': `Bearer ${accessToken}`,
         'X-ConnectionId': this.connectionGuid
     };
-    client.connect(this.serviceUrl, null, null, wsOptions);
+
+    const proxyOptions = {};
+    if (this.options.proxy) {
+      proxyOptions.agent = new HttpsProxyAgent(this.options.proxy); 
+    }
+
+    client.connect(this.serviceUrl, null, null, wsOptions, proxyOptions);
 };
 
 BingSpeechService.prototype._setUpClientEvents = function(client, callback) {

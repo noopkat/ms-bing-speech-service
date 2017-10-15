@@ -9,10 +9,11 @@
   "author": "Suz Hinton",
   "license": "MIT",
   "dependencies": {
+    "debug": "^3.0.1",
+    "https-proxy-agent": "^2.1.0",
     "request": "^2.81.0",
     "stream-buffers": "^3.0.1",
-    "websocket": "^1.0.24",
-    "debug": "^3.0.1"
+    "websocket": "^1.0.24"
   },
   "devDependencies": {
     "dotenv": "^4.0.0"
