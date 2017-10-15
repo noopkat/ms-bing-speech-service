@@ -112,7 +112,7 @@ Available options are below:
 
 | name                      | type      | description                                                                                              | default | required |
 |---------------------------|-----------|----------------------------------------------------------------------------------------------------------|---------|----------|
-| `subscriptionKey`         | `String`  | your Bing Speech API key                                                                                  | n/a     | yes      |
+| `subscriptionKey`         | `String`  | your [Bing Speech API key](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/how-to/how-to-authentication?tabs=Powershell#using-subscription-key)                                                                                  | n/a     | yes      |
 | `accessToken`         | `String`  | your [Bing Speech access token](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/how-to/how-to-authentication?tabs=Powershell#using-authorization-token). Only required if subscriptionKey option not supplied.                                                                                  | n/a     | no      |
 | `language`                | `String`  | the language you want to translate from. See supported languages in the [official Microsoft Bing Speech API docs](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/api-reference-rest/bingvoicerecognition#recognition-language).                                                                  | `'en-US'`  | no       |
 | `mode` | `String` | which recognition mode you'd like to use. Choose from `interative`, `conversation`, or `dictation`                          | `'conversation'` | no       |
