@@ -204,7 +204,7 @@ BingSpeechService.prototype.start = function(callback) {
 };
 
 BingSpeechService.prototype.stop = function(callback) {
-    if (!this.connection || !this.connection.connected) return callback(null);
+    if ((!this.connection || !this.connection.connected) && callback) return callback(null);
     if (callback) this.connection.once('close', callback);
     this.connection.close();
     debug('closed speech websocket connection');
