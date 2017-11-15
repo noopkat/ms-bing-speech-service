@@ -1,6 +1,6 @@
-# Microsoft Bing Speech to Text Service
+# Microsoft Speech to Text Service
 
-(Unofficial) NodeJS service wrapper for [Microsoft Bing Speech API](https://azure.microsoft.com/en-us/services/cognitive-services/speech). It is an implementation of the Bing Speech Websocket API specifically, which supports long speech recognition up to 10 minutes in length.
+(Unofficial) NodeJS service wrapper for [Microsoft Speech API](https://azure.microsoft.com/en-us/services/cognitive-services/speech). It is an implementation of the Speech Websocket API specifically, which supports long speech recognition up to 10 minutes in length.
 
 `npm install ms-bing-speech-service`
 
@@ -12,9 +12,9 @@
 
 ## Usage
 
-### Bing Speech
+### Microsoft Speech API
 
-You'll first need to [create a Microsoft Bing Speech API key](https://azure.microsoft.com/en-us/services/cognitive-services). You can do this while logged in to the Azure Portal.
+You'll first need to [create a Microsoft Speech API key](https://azure.microsoft.com/en-us/services/cognitive-services). You can do this while logged in to the Azure Portal.
 
 The following code will get you up and running with the essentials:
 
@@ -112,9 +112,9 @@ Available options are below:
 
 | name                      | type      | description                                                                                              | default | required |
 |---------------------------|-----------|----------------------------------------------------------------------------------------------------------|---------|----------|
-| `subscriptionKey`         | `String`  | your [Bing Speech API key](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/how-to/how-to-authentication?tabs=Powershell#using-subscription-key)                                                                                  | n/a     | yes      |
-| `accessToken`         | `String`  | your [Bing Speech access token](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/how-to/how-to-authentication?tabs=Powershell#using-authorization-token). Only required if subscriptionKey option not supplied.                                                                                  | n/a     | no      |
-| `language`                | `String`  | the language you want to translate from. See supported languages in the [official Microsoft Bing Speech API docs](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/api-reference-rest/bingvoicerecognition#recognition-language).                                                                  | `'en-US'`  | no       |
+| `subscriptionKey`         | `String`  | your [Speech API key](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/how-to/how-to-authentication?tabs=Powershell#using-subscription-key)                                                                                  | n/a     | yes      |
+| `accessToken`         | `String`  | your [Speech access token](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/how-to/how-to-authentication?tabs=Powershell#using-authorization-token). Only required if subscriptionKey option not supplied.                                                                                  | n/a     | no      |
+| `language`                | `String`  | the language you want to translate from. See supported languages in the [official Microsoft Speech API docs](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/api-reference-rest/bingvoicerecognition#recognition-language).                                                                  | `'en-US'`  | no       |
 | `mode` | `String` | which recognition mode you'd like to use. Choose from `interative`, `conversation`, or `dictation`                          | `'conversation'` | no       |
 | `format` | `String` | file format you'd like the text to speech to be returned as. Choose from `simple` or `detailed`                          | `'simple'` | no       |
 
