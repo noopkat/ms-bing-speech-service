@@ -1,6 +1,6 @@
 # Microsoft Speech to Text Service
 
-(Unofficial) NodeJS service wrapper for [Microsoft Speech API](https://azure.microsoft.com/en-us/services/cognitive-services/speech). It is an implementation of the Speech Websocket API specifically, which supports long speech recognition up to 10 minutes in length.
+(Unofficial) NodeJS service wrapper for [Microsoft Speech API](https://azure.microsoft.com/en-us/services/cognitive-services/speech). It is an implementation of the Speech Websocket API specifically, which supports long speech recognition up to 10 minutes in length. Are you looking for Microsoft Speech HTTP API (short speech) support instead? [This SDK can help you out](https://github.com/palmerabollo/bingspeech-api-client) :)
 
 `npm install ms-bing-speech-service`
 
