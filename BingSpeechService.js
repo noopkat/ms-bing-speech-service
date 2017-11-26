@@ -216,11 +216,14 @@ BingSpeechService.prototype._connectToWebsocket = function(accessToken, callback
 
     debug('opening websocket at:', this.serviceUrl);
 
-    const wsOptions = {
+    const headerParams = {
         'Authorization': `Bearer ${accessToken}`,
         'X-ConnectionId': this.connectionGuid
     };
-    client.connect(this.serviceUrl, null, null, wsOptions);
+    const headerParamsQueries = Object.keys(headerParams).map((header) => `&${header.replace('-', '')}=${headerParams[header]}`);
+    const authorizedServiceUrl = `${this.serviceUrl}${encodeURI(headerParamsQueries.join(''))}`;
+
+    client.connect(authorizedServiceUrl, null, null, null);
 };
 
 BingSpeechService.prototype._setUpClientEvents = function(client, callback) {
