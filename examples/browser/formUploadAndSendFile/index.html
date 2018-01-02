@@ -51,6 +51,19 @@
         border: 3px solid #0000ff;
       }
 
+      #subLabel {
+        display: block;
+        margin-bottom: 26px;
+      }
+
+      #subLabel input {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 5px;
+        width: 150px;
+        display: block;
+      }
+
       #filename {
         min-width: 175px;
         max-width: 175px;
@@ -76,6 +89,7 @@
   <body>
     <h1>File upload example</h1>
     <form>
+      <label id="subLabel">Subscription Key: <input type="text" /></label>
       <label>
         <button type="button" aria-controls="fileupload">Choose audio file</button>
         <input id="fileupload" tabindex="-1" type="file"/>

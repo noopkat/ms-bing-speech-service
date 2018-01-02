@@ -5,6 +5,7 @@ const fileInput = form.querySelector('#fileupload');
 const fileButton = form.querySelector('button');
 const fileName = form.querySelector('#filename');
 const submitButton = form.querySelector('input[type="submit"]');
+const subInput = form.querySelector('input[type="text"]');
 
 const log = document.querySelector('#log');
 const messages = document.querySelector('#messages');
@@ -13,11 +14,10 @@ const spinner = document.querySelector('#spinner');
 const options = {
   format: 'simple',
   language: 'en-US',
-  subscriptionKey: 'f3d216d172e3400abe7866a4c2d4a61c',
+  subscriptionKey: '',
   debug: true 
 }
 
-const recognizer = new bingSpeechService(options);
 
 function recognize(file) {
   submitButton.setAttribute('disabled', true);
@@ -25,49 +25,52 @@ function recognize(file) {
   messages.innerHTML = '';
   log.innerHTML = '';
 
-  recognizer.start((error, service) => {
-    if (error) return console.error(error);
-    console.log('service started');
-    log.innerHTML += 'service started<br/>';
+  const recognizer = new bingSpeechService(options);
 
-    service.on('turn.start', () => log.innerHTML += 'turn.start<br/>');
-    service.on('speech.startDetected', () => log.innerHTML += 'speech.startDetected<br/>');
-    service.on('speech.endDetected', () => log.innerHTML += 'speech.endDetected<br/>');
-    service.on('speech.phrase', () => log.innerHTML += 'speech.phrase<br/>');
+  recognizer.start()
+    .then((service) => {
+      console.log('service started');
+      log.innerHTML += 'service started<br/>';
 
-    service.on('recognition', (e) => {
-      if (e.RecognitionStatus === 'Success') {
-        console.log(e);
-        messages.innerHTML += `<p>${e.DisplayText}</p>`; 
-      }
-    });
+      service.on('turn.start', () => log.innerHTML += 'turn.start<br/>');
+      service.on('speech.startDetected', () => log.innerHTML += 'speech.startDetected<br/>');
+      service.on('speech.endDetected', () => log.innerHTML += 'speech.endDetected<br/>');
+      service.on('speech.phrase', () => log.innerHTML += 'speech.phrase<br/>');
 
-    service.on('close', () => {
-      submitButton.removeAttribute('disabled');
-      spinner.style.display = 'none';
-      log.innerHTML += 'service stopped<br/>[end]';
-    });
+      service.on('recognition', (e) => {
+        if (e.RecognitionStatus === 'Success') {
+          console.log(e);
+          messages.innerHTML += `<p>${e.DisplayText}</p>`; 
+        }
+      });
 
-    service.on('turn.end', () => {
-      recognizer.stop();
-      messages.innerHTML += '[end]';
-      log.innerHTML += 'turn.end<br/>';
-    });
+      service.on('close', () => {
+        submitButton.removeAttribute('disabled');
+        spinner.style.display = 'none';
+        log.innerHTML += 'service stopped<br/>[end]';
+      });
 
-    const reader = new FileReader();
-    
-    reader.addEventListener('loadend', (e) => {
-      console.log('sound file loaded:', e.currentTarget.result);
-      log.innerHTML += 'audio file loaded</br>';
-      service.sendFile(e.currentTarget.result);
-    });
+      service.on('turn.end', () => {
+        recognizer.stop();
+        messages.innerHTML += '[end]';
+        log.innerHTML += 'turn.end<br/>';
+      });
 
-    reader.readAsArrayBuffer(file);
-  });
+      const reader = new FileReader();
+      
+      reader.addEventListener('loadend', (e) => {
+        console.log('sound file loaded:', e.currentTarget.result);
+        log.innerHTML += 'audio file loaded</br>';
+        service.sendFile(e.currentTarget.result);
+      });
+
+      reader.readAsArrayBuffer(file);
+    }).catch((error) => console.error('could not start service:', error));
 }
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
+  options.subscriptionKey = subInput.value;
   const files = fileInput.files;
   if (files.length) {
     const file = files[0];

@@ -1,6 +1,6 @@
 require('dotenv').config();
 const path = require('path');
-const speechService = require('../');
+const speechService = require('../../');
 
 let sentTwice = false;
 const file = path.join(__dirname, 'samples', 'future-of-flying.wav');
@@ -12,32 +12,32 @@ const options = {
   debug: false
 }
 
-const socket = new speechService(options);
+const recognizer = new speechService(options);
 
-socket.start((error, service) => {
-  if (error) return console.error(error);
-  console.log('service started');
+recognizer.start()
+  .then((service) => {
+    console.log('service started');
 
-  service.on('recognition', (e) => {
-    if (e.RecognitionStatus === 'Success') console.log(e);
-  });
+    service.on('recognition', (e) => {
+      if (e.RecognitionStatus === 'Success') console.log(e);
+    });
 
-  // optional telemetry events to listen to
-  service.on('speech.startDetected', () => console.log('speech start detected'));
-  service.on('speech.endDetected', () => console.log('speech end detected'));
-  service.on('turn.start', () => console.log('speech turn started', service.turn.active));
+    // optional telemetry events to listen to
+    service.on('speech.startDetected', () => console.log('speech start detected'));
+    service.on('speech.endDetected', () => console.log('speech end detected'));
+    service.on('turn.start', () => console.log('speech turn started', service.turn.active));
 
-  // turn end means another audio sample can be sent if desired
-  service.on('turn.end', () => {
-    console.log('speech turn ended');
+    // turn end means another audio sample can be sent if desired
+    service.on('turn.end', () => {
+      console.log('speech turn ended');
 
-    // send file again to demonstrate how to start another turn of audio streaming
-    if (!sentTwice) {
-      service.sendFile(file);
-      sentTwice = true;
-    }
-  });
+      // send file again to demonstrate how to start another turn of audio streaming
+      if (!sentTwice) {
+        service.sendFile(file);
+        sentTwice = true;
+      }
+    });
 
-  service.sendFile(file);
-});
+    service.sendFile(file);
+  }).catch((error) => console.error('could not start service:', error));
 

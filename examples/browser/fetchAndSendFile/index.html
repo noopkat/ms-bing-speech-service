@@ -9,7 +9,7 @@
         padding: 30px;
       }
 
-      button {
+      input[type="submit"] {
         background-color: #acd3f6;
         border: 1px solid #7998b4;
         border-radius: 4px;
@@ -31,11 +31,27 @@
         width: 25px;
         display: none;
       }
+
+      #subLabel {
+        display: block;
+        margin-bottom: 26px;
+      }
+
+      #subLabel input {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 5px;
+        width: 150px;
+        display: block;
+      }
     </style>
   </head>
   <body>
     <h1>Fetch example</h1>
-    <div><button type="button">Go!</button></div>
+    <form>
+      <label id="subLabel">Subscription Key: <input type="text" /></label>
+      <input type="submit" value="Go!"/>
+    </form>
 
     <div class="wrapper">
       <h2>Log</h2>
