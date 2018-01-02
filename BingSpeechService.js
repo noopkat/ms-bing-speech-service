@@ -195,12 +195,12 @@ module.exports = function (dependencies) {
 
         client.onerror = (error) => {
           client.emit('error', error);
-          debug('socket error:', error.reason);
+          debug('socket error:', error);
         }
 
         client.onclose = (error) => {
           client.emit('close', error);
-          debug('socket close reason:', error.reason);
+          debug('socket close:', error);
           if (error.code !== 1000) reject(error);
         }
 
