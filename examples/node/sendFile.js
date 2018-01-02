@@ -1,6 +1,6 @@
 require('dotenv').config();
 const path = require('path');
-const speechService = require('../BingSpeechService.js');
+const speechService = require('../');
 
 let sentTwice = false;
 const file = path.join(__dirname, 'samples', 'future-of-flying.wav');
@@ -8,12 +8,14 @@ const file = path.join(__dirname, 'samples', 'future-of-flying.wav');
 const options = {
   format: 'simple',
   language: 'en-US',
-  subscriptionKey: process.env.subscriptionKey 
+  subscriptionKey: process.env.subscriptionKey,
+  debug: false
 }
 
 const socket = new speechService(options);
 
 socket.start((error, service) => {
+  if (error) return console.error(error);
   console.log('service started');
 
   service.on('recognition', (e) => {

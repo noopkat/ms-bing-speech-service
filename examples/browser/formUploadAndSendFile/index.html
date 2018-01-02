@@ -1,0 +1,99 @@
+<html>
+  <head>
+    <title>bing speech service example</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        font-size: 14px;
+        line-height: 1.4em;
+        padding: 30px;
+      }
+
+      form {
+        padding: 10px 0px 20px 0px;
+      }
+
+      input[type='submit'] {
+        background-color: #94e1ac;
+        border: 1px solid #80c495;
+        border-radius: 4px;
+        padding: 4px 8px 4px 8px;
+        font-size: 15px;
+        cursor: pointer;
+      }
+
+      label > button {
+        background-color: #acd3f6;
+        border: 1px solid #7998b4;
+        border-radius: 4px;
+        padding: 4px 8px 4px 8px;
+        position: relative;
+        overflow: hidden;
+        margin-right: 20px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      input[type='file'] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        filter: alpha(opacity=0);
+        opacity: 0;
+        outline: none;
+        background: white;
+        cursor: inherit;
+        display: block;
+      }
+
+      input[type='file']:focus {
+        outline: 3px solid #0000ff;
+        border: 3px solid #0000ff;
+      }
+
+      #filename {
+        min-width: 175px;
+        max-width: 175px;
+        max-height: 20px;
+        font-size: 12px;
+        overflow: hidden;
+        position: relative;
+        display: inline-block;
+        text-overflow: ellipsis; 
+      }
+
+      .wrapper {
+        width: 355px;
+        float: left;
+      }
+
+      #spinner {
+        width: 25px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>File upload example</h1>
+    <form>
+      <label>
+        <button type="button" aria-controls="fileupload">Choose audio file</button>
+        <input id="fileupload" tabindex="-1" type="file"/>
+      </label>
+     <span id="filename">no file chosen</span>
+      <input type="submit" value="Send File"/>
+    </form>
+
+    <div class="wrapper">
+      <h2>Log</h2>
+      <div id="log"></div>
+    </div>
+
+    <div class="wrapper">
+      <h2>Recognition <img src="loading_spinner.gif" id="spinner" /></h2>
+      <div id="messages"></div>
+    </div>
+
+    <script src="dist/bundle.js"></script>
+  </body>
+</html>

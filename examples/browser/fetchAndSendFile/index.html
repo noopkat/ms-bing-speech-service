@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <title>bing speech service example</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        font-size: 14px;
+        line-height: 1.4em;
+        padding: 30px;
+      }
+
+      button {
+        background-color: #acd3f6;
+        border: 1px solid #7998b4;
+        border-radius: 4px;
+        padding: 4px 8px 4px 8px;
+        position: relative;
+        overflow: hidden;
+        margin-right: 20px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      
+      .wrapper {
+        margin-top: 20px;
+        width: 355px;
+        float: left;
+      }
+
+      #spinner {
+        width: 25px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Fetch example</h1>
+    <div><button type="button">Go!</button></div>
+
+    <div class="wrapper">
+      <h2>Log</h2>
+      <div id="log"></div>
+    </div>
+
+    <div class="wrapper">
+      <h2>Recognition <img src="loading_spinner.gif" id="spinner" /></h2>
+      <div id="messages"></div>
+    </div>
+    <script src="dist/MsBingSpeechService.global.min.js"></script>
+    <script src="dist/bundle.js"></script>
+  </body>
+</html>
