@@ -86,14 +86,12 @@ module.exports = function (dependencies) {
       });
     }
 
-    _getAccessToken(callback) {
+    _getAccessToken() {
       if (this.options.accessToken) {
-        return callback(null, this.options.accessToken);
+        debug('access token supplied via options');
+        return Promise.resolve(this.options.accessToken);
       }
-      this._requestAccessToken(callback);
-    };
 
-    _requestAccessToken(callback) {
       const postRequest = {
         method: 'POST',
         headers: {
@@ -103,10 +101,8 @@ module.exports = function (dependencies) {
 
       debug('requesting access token');
       // request token
-      fetch(this.issueTokenUrl, postRequest)
-        .then((res) => res.text())
-        .then((res) => callback(null, res))
-        .catch((error) => callback(error));
+      return fetch(this.issueTokenUrl, postRequest)
+        .then((res) => res.text());
     };
 
     onMessage({data}) {
@@ -153,23 +149,22 @@ module.exports = function (dependencies) {
       this.connection.emit('data', JSON.stringify(data.utf8Data));
     };
 
-    start(callback) {
+    start() {
       this.connectionGuid = uuid().replace(/-/g, '');
 
-      this._getAccessToken((error, accessToken) => {
-        if (error) return callback(error);
+      return this._getAccessToken()
+        .then((accessToken) => {
+          debug('access token request successful');
 
-        debug('access token request successful');
+          this.telemetry.Metrics.push({
+            Name: 'Connection',
+            Id: this.connectionGuid,
+            Start: new Date().toISOString(),
+            End: ''
+          });
 
-        this.telemetry.Metrics.push({
-          Name: 'Connection',
-          Id: this.connectionGuid,
-          Start: new Date().toISOString(),
-          End: ''
-        });
-
-        this._connectToWebsocket(accessToken, callback);
-      });
+         return this._connectToWebsocket(accessToken);
+      })
     };
 
     stop(callback) {
@@ -179,7 +174,7 @@ module.exports = function (dependencies) {
       debug('closed speech websocket connection');
     };
 
-    _connectToWebsocket(accessToken, callback) {
+    _connectToWebsocket(accessToken) {
       debug('opening websocket at:', this.serviceUrl);
 
       const headerParams = {
@@ -191,43 +186,47 @@ module.exports = function (dependencies) {
 
       const client = new websocket(authorizedServiceUrl);
 
-      this._setUpClientEvents(client, callback);
+      return this._setUpClientEvents(client);
     };
 
-    _setUpClientEvents(client, callback) {
-      client.onmessage = this.onMessage.bind(this);
+    _setUpClientEvents(client) {
+      return new Promise((resolve, reject) => {
+        client.onmessage = this.onMessage.bind(this);
 
-      client.onerror = (error) => {
-        client.emit('error', error);
-        debug('socket error:', error.reason);
-      }
+        client.onerror = (error) => {
+          client.emit('error', error);
+          debug('socket error:', error.reason);
+        }
 
-      client.onclose = (error) => {
-        client.emit('close', error);
-        debug('socket close reason:', error.reason);
-      }
+        client.onclose = (error) => {
+          client.emit('close', error);
+          debug('socket close reason:', error.reason);
+          if (error.code !== 1000) reject(error);
+        }
 
-      client.onopen = (event) => {
-        debug('connected to websocket');
+        client.onopen = (event) => {
+          debug('connected to websocket');
 
-        this.connection = client;
-        this.connection.sendFile = sendFile.bind(this);
-        this.connection.turn = {
-          active: false
-        };
+          this.connection = client;
+          this.connection.sendFile = sendFile.bind(this);
+          this.connection.turn = {
+            active: false
+          };
 
-        // update connection metric to when the metric ended
-        this.telemetry.Metrics[0].End = new Date().toISOString();
+          // update connection metric to when the metric ended
+          this.telemetry.Metrics[0].End = new Date().toISOString();
 
-        debug('sending config packet');
+          debug('sending config packet');
 
-        const initialisationPayload = protocolHelper.createSpeechConfigPacket(this.connectionGuid);
-        this._sendToSocketServer(initialisationPayload);
+          const initialisationPayload = protocolHelper.createSpeechConfigPacket(this.connectionGuid);
+          this._sendToSocketServer(initialisationPayload);
 
-        this.emit('connect');
-        return callback(null, this.connection);
-      };
+          this.emit('connect');
+          resolve(this.connection);
+       };
+     });
     };
+
   };
 
   return BingSpeechService;

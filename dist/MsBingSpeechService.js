@@ -3022,15 +3022,12 @@ module.exports = function (dependencies) {
       }
     }, {
       key: '_getAccessToken',
-      value: function _getAccessToken(callback) {
+      value: function _getAccessToken() {
         if (this.options.accessToken) {
-          return callback(null, this.options.accessToken);
+          debug('access token supplied via options');
+          return Promise.resolve(this.options.accessToken);
         }
-        this._requestAccessToken(callback);
-      }
-    }, {
-      key: '_requestAccessToken',
-      value: function _requestAccessToken(callback) {
+
         var postRequest = {
           method: 'POST',
           headers: {
@@ -3040,12 +3037,8 @@ module.exports = function (dependencies) {
 
         debug('requesting access token');
         // request token
-        fetch(this.issueTokenUrl, postRequest).then(function (res) {
+        return fetch(this.issueTokenUrl, postRequest).then(function (res) {
           return res.text();
-        }).then(function (res) {
-          return callback(null, res);
-        }).catch(function (error) {
-          return callback(error);
         });
       }
     }, {
@@ -3099,14 +3092,12 @@ module.exports = function (dependencies) {
       }
     }, {
       key: 'start',
-      value: function start(callback) {
+      value: function start() {
         var _this2 = this;
 
         this.connectionGuid = uuid().replace(/-/g, '');
 
-        this._getAccessToken(function (error, accessToken) {
-          if (error) return callback(error);
-
+        return this._getAccessToken().then(function (accessToken) {
           debug('access token request successful');
 
           _this2.telemetry.Metrics.push({
@@ -3116,7 +3107,7 @@ module.exports = function (dependencies) {
             End: ''
           });
 
-          _this2._connectToWebsocket(accessToken, callback);
+          return _this2._connectToWebsocket(accessToken);
         });
       }
     }, {
@@ -3129,7 +3120,7 @@ module.exports = function (dependencies) {
       }
     }, {
       key: '_connectToWebsocket',
-      value: function _connectToWebsocket(accessToken, callback) {
+      value: function _connectToWebsocket(accessToken) {
         debug('opening websocket at:', this.serviceUrl);
 
         var headerParams = {
@@ -3143,45 +3134,48 @@ module.exports = function (dependencies) {
 
         var client = new websocket(authorizedServiceUrl);
 
-        this._setUpClientEvents(client, callback);
+        return this._setUpClientEvents(client);
       }
     }, {
       key: '_setUpClientEvents',
-      value: function _setUpClientEvents(client, callback) {
+      value: function _setUpClientEvents(client) {
         var _this3 = this;
 
-        client.onmessage = this.onMessage.bind(this);
+        return new Promise(function (resolve, reject) {
+          client.onmessage = _this3.onMessage.bind(_this3);
 
-        client.onerror = function (error) {
-          client.emit('error', error);
-          debug('socket error:', error.reason);
-        };
-
-        client.onclose = function (error) {
-          client.emit('close', error);
-          debug('socket close reason:', error.reason);
-        };
-
-        client.onopen = function (event) {
-          debug('connected to websocket');
-
-          _this3.connection = client;
-          _this3.connection.sendFile = sendFile.bind(_this3);
-          _this3.connection.turn = {
-            active: false
+          client.onerror = function (error) {
+            client.emit('error', error);
+            debug('socket error:', error.reason);
           };
 
-          // update connection metric to when the metric ended
-          _this3.telemetry.Metrics[0].End = new Date().toISOString();
+          client.onclose = function (error) {
+            client.emit('close', error);
+            debug('socket close reason:', error.reason);
+            if (error.code !== 1000) reject(error);
+          };
 
-          debug('sending config packet');
+          client.onopen = function (event) {
+            debug('connected to websocket');
 
-          var initialisationPayload = protocolHelper.createSpeechConfigPacket(_this3.connectionGuid);
-          _this3._sendToSocketServer(initialisationPayload);
+            _this3.connection = client;
+            _this3.connection.sendFile = sendFile.bind(_this3);
+            _this3.connection.turn = {
+              active: false
+            };
 
-          _this3.emit('connect');
-          return callback(null, _this3.connection);
-        };
+            // update connection metric to when the metric ended
+            _this3.telemetry.Metrics[0].End = new Date().toISOString();
+
+            debug('sending config packet');
+
+            var initialisationPayload = protocolHelper.createSpeechConfigPacket(_this3.connectionGuid);
+            _this3._sendToSocketServer(initialisationPayload);
+
+            _this3.emit('connect');
+            resolve(_this3.connection);
+          };
+        });
       }
     }]);
 
