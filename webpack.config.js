@@ -15,6 +15,24 @@ const importableConfig = {
   }
 };
 
+const importableMinConfig = {
+  entry: './browser.entry.js',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'MsBingSpeechService.min.js',
+    libraryTarget: 'umd'
+  },
+  plugins: [
+    new MinifyPlugin()
+  ],
+  module: {
+    rules: [
+      { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' }
+    ]
+  }
+};
+
+
 const globalConfig = {
   entry: './browser.entry.js',
   output: {
@@ -33,4 +51,4 @@ const globalConfig = {
   }
 };
 
-module.exports = [importableConfig, globalConfig];
+module.exports = [importableConfig, importableMinConfig, globalConfig];
