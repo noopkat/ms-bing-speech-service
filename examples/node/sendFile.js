@@ -15,29 +15,29 @@ const options = {
 const recognizer = new speechService(options);
 
 recognizer.start()
-  .then((service) => {
+  .then(() => {
     console.log('service started');
 
-    service.on('recognition', (e) => {
+    recognizer.on('recognition', (e) => {
       if (e.RecognitionStatus === 'Success') console.log(e);
     });
 
     // optional telemetry events to listen to
-    service.on('speech.startDetected', () => console.log('speech start detected'));
-    service.on('speech.endDetected', () => console.log('speech end detected'));
-    service.on('turn.start', () => console.log('speech turn started', service.turn.active));
+    recognizer.on('speech.startDetected', () => console.log('speech start detected'));
+    recognizer.on('speech.endDetected', () => console.log('speech end detected'));
+    recognizer.on('turn.start', () => console.log('speech turn started', recognizer.turn.active));
 
     // turn end means another audio sample can be sent if desired
-    service.on('turn.end', () => {
+    recognizer.on('turn.end', () => {
       console.log('speech turn ended');
 
       // send file again to demonstrate how to start another turn of audio streaming
       if (!sentTwice) {
-        service.sendFile(file);
+        recognizer.sendFile(file);
         sentTwice = true;
       }
     });
 
-    service.sendFile(file);
+    recognizer.sendFile(file);
   }).catch((error) => console.error('could not start service:', error));
 

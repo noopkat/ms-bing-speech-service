@@ -116,11 +116,11 @@ module.exports = function (dependencies) {
       debug(messagePath);
 
       if (messagePath === 'turn.start') {
-        this.connection.turn.active = true;
+        this.turn.active = true;
       }
 
       if (messagePath === 'speech.phrase') {
-        this.connection.emit('recognition', body);
+        this.emit('recognition', body);
       }
 
       if (messagePath === 'speech.endDetected') {
@@ -129,7 +129,7 @@ module.exports = function (dependencies) {
       };
 
       if (messagePath === 'turn.end') {
-        this.connection.turn.active = false;
+        this.turn.active = false;
 
         // send telemetry metrics to keep websocket open at each turn end
         const telemetryResponse = protocolHelper.createTelemetryPacket(this.currentTurnGuid, this.telemetry);
@@ -146,10 +146,10 @@ module.exports = function (dependencies) {
       this.telemetry.ReceivedMessages[messagePath].push(new Date().toISOString());
 
       // emit type of event
-      this.connection.emit(messagePath, body);
+      this.emit(messagePath, body);
 
       // also emit to the raw data firehose
-      this.connection.emit('data', JSON.stringify(data.utf8Data));
+      this.emit('data', JSON.stringify(data.utf8Data));
     };
 
     start() {
@@ -199,12 +199,11 @@ module.exports = function (dependencies) {
         client.onmessage = this.onMessage.bind(this);
 
         client.onerror = (error) => {
-          client.emit('error', error);
+          this.emit('error', error);
           debug('socket error:', error);
         }
 
         client.onclose = (error) => {
-          client.emit('close', error);
           debug('socket close:', error);
           this.emit('close');
           if (error && error.code !== 1000) reject(error);
@@ -214,8 +213,8 @@ module.exports = function (dependencies) {
           debug('connected to websocket');
 
           this.connection = client;
-          this.connection.sendFile = sendFile.bind(this);
-          this.connection.turn = {
+          this.sendFile = sendFile.bind(this);
+          this.turn = {
             active: false
           };
 
@@ -228,7 +227,7 @@ module.exports = function (dependencies) {
           this._sendToSocketServer(initialisationPayload);
 
           this.emit('connect');
-          resolve(this.connection);
+          resolve();
        };
      });
     };

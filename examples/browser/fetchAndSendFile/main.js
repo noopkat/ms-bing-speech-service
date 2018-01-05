@@ -21,29 +21,29 @@ function recognize(file) {
   const recognizer = new window.MsBingSpeechService(options);
 
   recognizer.start()
-    .then((service) => {
+    .then(() => {
       console.log('service started');
       log.innerHTML += 'service started<br/>';
 
-      service.on('turn.start', () => log.innerHTML += 'turn.start<br/>');
-      service.on('speech.startDetected', () => log.innerHTML += 'speech.startDetected<br/>');
-      service.on('speech.endDetected', () => log.innerHTML += 'speech.endDetected<br/>');
-      service.on('speech.phrase', () => log.innerHTML += 'speech.phrase<br/>');
+      recognizer.on('turn.start', () => log.innerHTML += 'turn.start<br/>');
+      recognizer.on('speech.startDetected', () => log.innerHTML += 'speech.startDetected<br/>');
+      recognizer.on('speech.endDetected', () => log.innerHTML += 'speech.endDetected<br/>');
+      recognizer.on('speech.phrase', () => log.innerHTML += 'speech.phrase<br/>');
 
-      service.on('recognition', (e) => {
+      recognizer.on('recognition', (e) => {
         if (e.RecognitionStatus === 'Success') {
           console.log(e);
           messages.innerHTML += `<p>${e.DisplayText}</p>`; 
         }
       });
 
-      service.on('close', () => {
+      recognizer.on('close', () => {
         submitButton.removeAttribute('disabled');
         spinner.style.display = 'none';
-        log.innerHTML += 'service stopped<br/>[end]';
+        log.innerHTML += 'recognizer stopped<br/>[end]';
       });
 
-      service.on('turn.end', () => {
+      recognizer.on('turn.end', () => {
         recognizer.stop();
         messages.innerHTML += '[end]';
         log.innerHTML += 'turn.end<br/>';
@@ -54,7 +54,7 @@ function recognize(file) {
       reader.addEventListener('loadend', (e) => {
         console.log('sound file loaded:', e.currentTarget.result);
         log.innerHTML += 'audio file loaded</br>';
-        service.sendFile(e.currentTarget.result);
+        recognizer.sendFile(e.currentTarget.result);
       });
 
       reader.readAsArrayBuffer(file);

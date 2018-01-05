@@ -2986,8 +2986,8 @@ module.exports = function (dependencies) {
     _createClass(BingSpeechService, [{
       key: '_resetTelemetry',
       value: function _resetTelemetry(props) {
-        var metrics = props.includes('Metrics') ? [] : this.telemetry.Metrics;
-        var receivedMessages = props.includes('ReceivedMessages') ? receivedTelemetryTemplate : this.telemetry.ReceivedMessages;
+        var metrics = Array.isArray(props) && props.includes('Metrics') ? [] : this.telemetry.Metrics;
+        var receivedMessages = Array.isArray(props) && props.includes('ReceivedMessages') ? receivedTelemetryTemplate : this.telemetry.ReceivedMessages;
 
         this.telemetry.Metrics = metrics;
         this.telemetry.ReceivedMessages = receivedMessages;
@@ -2995,7 +2995,7 @@ module.exports = function (dependencies) {
     }, {
       key: '_sendToSocketServer',
       value: function _sendToSocketServer(item) {
-        if (this.connection.readyState !== 1) return console.error('could not send: connection to service not open');
+        if (this.connection.readyState !== 1) throw new Error('could not send: connection to service not open');
         this.connection.send(item);
       }
     }, {
@@ -3006,18 +3006,22 @@ module.exports = function (dependencies) {
       }
     }, {
       key: 'sendStream',
-      value: function sendStream(inputStream, callback) {
-        this.telemetry.Metrics.push({
-          Start: new Date().toISOString(),
-          Name: 'Microphone',
-          End: ''
-        });
+      value: function sendStream(inputStream) {
+        var _this2 = this;
 
-        inputStream.on('data', this.sendChunk.bind(this));
+        return new Promise(function (resolve, reject) {
+          _this2.telemetry.Metrics.push({
+            Start: new Date().toISOString(),
+            Name: 'Microphone',
+            End: ''
+          });
 
-        inputStream.on('end', function () {
-          debug('audio stream end');
-          if (callback) return callback();
+          inputStream.on('data', _this2.sendChunk.bind(_this2));
+
+          inputStream.on('end', function () {
+            debug('audio stream end');
+            resolve();
+          });
         });
       }
     }, {
@@ -3048,16 +3052,17 @@ module.exports = function (dependencies) {
 
         var message = messageParser.parse(data);
         var messagePath = message.path;
+        // change this to just look for 'content type application/json' in message object
         var body = richPaths.includes(messagePath) ? JSON.parse(message.body) : {};
 
         debug(messagePath);
 
         if (messagePath === 'turn.start') {
-          this.connection.turn.active = true;
+          this.turn.active = true;
         }
 
         if (messagePath === 'speech.phrase') {
-          this.connection.emit('recognition', body);
+          this.emit('recognition', body);
         }
 
         if (messagePath === 'speech.endDetected') {
@@ -3068,7 +3073,7 @@ module.exports = function (dependencies) {
         };
 
         if (messagePath === 'turn.end') {
-          this.connection.turn.active = false;
+          this.turn.active = false;
 
           // send telemetry metrics to keep websocket open at each turn end
           var telemetryResponse = protocolHelper.createTelemetryPacket(this.currentTurnGuid, this.telemetry);
@@ -3085,38 +3090,42 @@ module.exports = function (dependencies) {
         this.telemetry.ReceivedMessages[messagePath].push(new Date().toISOString());
 
         // emit type of event
-        this.connection.emit(messagePath, body);
+        this.emit(messagePath, body);
 
         // also emit to the raw data firehose
-        this.connection.emit('data', JSON.stringify(data.utf8Data));
+        this.emit('data', JSON.stringify(data.utf8Data));
       }
     }, {
       key: 'start',
       value: function start() {
-        var _this2 = this;
+        var _this3 = this;
 
         this.connectionGuid = uuid().replace(/-/g, '');
 
         return this._getAccessToken().then(function (accessToken) {
           debug('access token request successful');
 
-          _this2.telemetry.Metrics.push({
+          _this3.telemetry.Metrics.push({
             Name: 'Connection',
-            Id: _this2.connectionGuid,
+            Id: _this3.connectionGuid,
             Start: new Date().toISOString(),
             End: ''
           });
 
-          return _this2._connectToWebsocket(accessToken);
+          return _this3._connectToWebsocket(accessToken);
         });
       }
     }, {
       key: 'stop',
-      value: function stop(callback) {
-        if ((!this.connection || !this.connection.connected) && callback) return callback(null);
-        if (callback) this.connection.once('close', callback);
-        this.connection.close();
-        debug('closed speech websocket connection');
+      value: function stop() {
+        var _this4 = this;
+
+        return new Promise(function (resolve, reject) {
+          if ((!_this4.connection || !_this4.connection.readyState === 1) && callback) return resolve();
+          _this4.once('close', resolve());
+          _this4.connection.close();
+          debug('closing speech websocket connection');
+        });
       }
     }, {
       key: '_connectToWebsocket',
@@ -3139,41 +3148,41 @@ module.exports = function (dependencies) {
     }, {
       key: '_setUpClientEvents',
       value: function _setUpClientEvents(client) {
-        var _this3 = this;
+        var _this5 = this;
 
         return new Promise(function (resolve, reject) {
-          client.onmessage = _this3.onMessage.bind(_this3);
+          client.onmessage = _this5.onMessage.bind(_this5);
 
           client.onerror = function (error) {
-            client.emit('error', error);
-            debug('socket error:', error.reason);
+            _this5.emit('error', error);
+            debug('socket error:', error);
           };
 
           client.onclose = function (error) {
-            client.emit('close', error);
-            debug('socket close reason:', error.reason);
-            if (error.code !== 1000) reject(error);
+            debug('socket close:', error);
+            _this5.emit('close');
+            if (error && error.code !== 1000) reject(error);
           };
 
           client.onopen = function (event) {
             debug('connected to websocket');
 
-            _this3.connection = client;
-            _this3.connection.sendFile = sendFile.bind(_this3);
-            _this3.connection.turn = {
+            _this5.connection = client;
+            _this5.sendFile = sendFile.bind(_this5);
+            _this5.turn = {
               active: false
             };
 
             // update connection metric to when the metric ended
-            _this3.telemetry.Metrics[0].End = new Date().toISOString();
+            _this5.telemetry.Metrics[0].End = new Date().toISOString();
 
             debug('sending config packet');
 
-            var initialisationPayload = protocolHelper.createSpeechConfigPacket(_this3.connectionGuid);
-            _this3._sendToSocketServer(initialisationPayload);
+            var initialisationPayload = protocolHelper.createSpeechConfigPacket(_this5.connectionGuid);
+            _this5._sendToSocketServer(initialisationPayload);
 
-            _this3.emit('connect');
-            resolve(_this3.connection);
+            _this5.emit('connect');
+            resolve();
           };
         });
       }
