@@ -1,3 +1,6 @@
+[![Build Status](https://api.travis-ci.org/noopkat/ms-bing-speech-service.svg?branch=master)](https://travis-ci.org/noopkat/ms-bing-speech-service)
+[![Coverage Status](https://coveralls.io/repos/github/noopkat/ms-bing-speech-service/badge.svg?branch=master)](https://coveralls.io/github/noopkat/ms-bing-speech-service?branch=browser-compat)
+
 # Microsoft Speech to Text Service
 
 (Unofficial) JavaScript service wrapper for [Microsoft Speech API](https://azure.microsoft.com/en-us/services/cognitive-services/speech). It is an implementation of the Speech Websocket API specifically, which supports long speech recognition up to 10 minutes in length. Are you looking for Microsoft Speech HTTP API (short speech) support instead? [This SDK can help you out](https://github.com/palmerabollo/bingspeech-api-client) :)
