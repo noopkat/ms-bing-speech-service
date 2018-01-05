@@ -54,15 +54,15 @@ module.exports = function (dependencies) {
     };
 
     _resetTelemetry(props) {
-      const metrics = props.includes('Metrics') ? [] : this.telemetry.Metrics;
-      const receivedMessages = props.includes('ReceivedMessages') ? receivedTelemetryTemplate : this.telemetry.ReceivedMessages;
+      const metrics = (Array.isArray(props) && props.includes('Metrics')) ? [] : this.telemetry.Metrics;
+      const receivedMessages = (Array.isArray(props) && props.includes('ReceivedMessages')) ? receivedTelemetryTemplate : this.telemetry.ReceivedMessages;
 
       this.telemetry.Metrics = metrics;
       this.telemetry.ReceivedMessages = receivedMessages;
     }
 
     _sendToSocketServer(item) {
-      if (this.connection.readyState !== 1) return console.error('could not send: connection to service not open');
+      if (this.connection.readyState !== 1) throw new Error('could not send: connection to service not open');
       this.connection.send(item);
     }
 
@@ -71,18 +71,20 @@ module.exports = function (dependencies) {
       this._sendToSocketServer(data);
     }
 
-    sendStream(inputStream, callback){
-      this.telemetry.Metrics.push({
-        Start: new Date().toISOString(),
-        Name:'Microphone',
-        End : '',
-      });
+    sendStream(inputStream) {
+      return new Promise((resolve, reject) => {
+        this.telemetry.Metrics.push({
+          Start: new Date().toISOString(),
+          Name:'Microphone',
+          End : '',
+        });
 
-      inputStream.on('data', this.sendChunk.bind(this));
+        inputStream.on('data', this.sendChunk.bind(this));
 
-      inputStream.on('end',function() {
-        debug('audio stream end');
-        if (callback) return callback();
+        inputStream.on('end', () => {
+          debug('audio stream end');
+          resolve();
+        });
       });
     }
 
@@ -108,6 +110,7 @@ module.exports = function (dependencies) {
     onMessage({data}) {
       const message = messageParser.parse(data);
       const messagePath = message.path;
+      // change this to just look for 'content type application/json' in message object
       const body = richPaths.includes(messagePath) ? JSON.parse(message.body) : {};
 
       debug(messagePath);
@@ -167,11 +170,13 @@ module.exports = function (dependencies) {
       })
     };
 
-    stop(callback) {
-      if ((!this.connection || !this.connection.connected) && callback) return callback(null);
-      if (callback) this.connection.once('close', callback);
-      this.connection.close();
-      debug('closed speech websocket connection');
+    stop() {
+      return new Promise((resolve, reject) => {
+        if ((!this.connection || !this.connection.readyState === 1) && callback) return resolve();
+        this.once('close', resolve());
+        this.connection.close();
+        debug('closing speech websocket connection');
+      });
     };
 
     _connectToWebsocket(accessToken) {
@@ -201,7 +206,8 @@ module.exports = function (dependencies) {
         client.onclose = (error) => {
           client.emit('close', error);
           debug('socket close:', error);
-          if (error.code !== 1000) reject(error);
+          this.emit('close');
+          if (error && error.code !== 1000) reject(error);
         }
 
         client.onopen = (event) => {
