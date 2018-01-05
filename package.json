@@ -5,7 +5,7 @@
   "main": "node.entry.js",
   "module": "dist/MsBingSpeechService.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/BingSpeechService.test.js | tap-spec"
   },
   "author": "Suz Hinton",
   "license": "MIT",
@@ -24,6 +24,9 @@
     "babel-minify-webpack-plugin": "^0.2.0",
     "babel-preset-env": "^1.6.1",
     "dotenv": "^4.0.0",
+    "proxyquire": "^1.8.0",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.8.0",
     "webpack": "^3.10.0"
   },
   "directories": {
