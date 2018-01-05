@@ -61,7 +61,9 @@ function recognize(file) {
       reader.addEventListener('loadend', (e) => {
         console.log('sound file loaded:', e.currentTarget.result);
         log.innerHTML += 'audio file loaded</br>';
-        recognizer.sendFile(e.currentTarget.result);
+        recognizer.sendFile(e.currentTarget.result)
+          .then(_ => log.innerHTML += 'audio file sent</br>')
+          .catch(console.error);
       });
 
       reader.readAsArrayBuffer(file);

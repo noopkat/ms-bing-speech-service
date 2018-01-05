@@ -5,7 +5,7 @@
   "main": "node.entry.js",
   "module": "dist/MsBingSpeechService.js",
   "scripts": {
-    "test": "node test/BingSpeechService.test.js | tap-spec"
+    "test": "node test/all.test.js | tap-spec"
   },
   "author": "Suz Hinton",
   "license": "MIT",

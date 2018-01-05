@@ -2878,20 +2878,27 @@ module.exports.parse = function (message) {
 
 
 function sendFile(buffer) {
-  this.telemetry.Metrics.push({
-    Start: new Date().toISOString(),
-    Name: 'Microphone',
-    End: ''
-  });
+  var _this = this;
 
-  sendFileChunk.call(this, 0, buffer);
+  return new Promise(function (resolve, reject) {
+    if (!buffer || !buffer.byteLength) reject(new Error('could not send File: not a valid ArrayBuffer'));
+    _this.telemetry.Metrics.push({
+      Start: new Date().toISOString(),
+      Name: 'Microphone',
+      End: ''
+    });
+
+    sendFileChunk.call(_this, 0, buffer, resolve);
+  });
 };
 
 function sendFileChunk() {
-  var _this = this;
-
   var start = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+  var _this2 = this;
+
   var buffer = arguments[1];
+  var callback = arguments[2];
 
   var length = buffer.byteLength;
   var end = start + 32000;
@@ -2901,8 +2908,10 @@ function sendFileChunk() {
   if (end < length) {
     start = end;
     setTimeout(function () {
-      return sendFileChunk.call(_this, start, buffer);
+      return sendFileChunk.call(_this2, start, buffer, callback);
     }, 200);
+  } else {
+    return callback();
   }
 }
 
@@ -3123,6 +3132,7 @@ module.exports = function (dependencies) {
         return new Promise(function (resolve, reject) {
           if ((!_this4.connection || !_this4.connection.readyState === 1) && callback) return resolve();
           _this4.once('close', resolve());
+          _this4.once('error', reject());
           _this4.connection.close();
           debug('closing speech websocket connection');
         });
