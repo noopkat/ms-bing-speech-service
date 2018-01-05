@@ -1,6 +1,6 @@
 # Microsoft Speech to Text Service
 
-(Unofficial) NodeJS service wrapper for [Microsoft Speech API](https://azure.microsoft.com/en-us/services/cognitive-services/speech). It is an implementation of the Speech Websocket API specifically, which supports long speech recognition up to 10 minutes in length. Are you looking for Microsoft Speech HTTP API (short speech) support instead? [This SDK can help you out](https://github.com/palmerabollo/bingspeech-api-client) :)
+(Unofficial) JavaScript service wrapper for [Microsoft Speech API](https://azure.microsoft.com/en-us/services/cognitive-services/speech). It is an implementation of the Speech Websocket API specifically, which supports long speech recognition up to 10 minutes in length. Are you looking for Microsoft Speech HTTP API (short speech) support instead? [This SDK can help you out](https://github.com/palmerabollo/bingspeech-api-client) :)
 
 `npm install ms-bing-speech-service`
 
@@ -12,11 +12,13 @@
 
 ## Usage
 
+**✨ This library works in both browsers and NodeJS runtime environments ✨** Please see the [examples directory](https://github.com/noopkat/ms-bing-speech-service/blob/master/examples) in this repo for more in depth examples than those below.
+
 ### Microsoft Speech API
 
 You'll first need to [create a Microsoft Speech API key](https://azure.microsoft.com/en-us/services/cognitive-services). You can do this while logged in to the Azure Portal.
 
-The following code will get you up and running with the essentials:
+The following code will get you up and running with the essentials in Node:
 
 ```js
 const speechService = require('ms-bing-speech-service');
@@ -28,21 +30,82 @@ const options = {
 
 const recognizer = new speechService(options);
 
-recognizer.start((error, service) => {
-  if (!error) {
-    console.log('service started');
-
-    service.on('recognition', (e) => {
+recognizer
+  .start()
+  .then(_ => {
+    recognizer.on('recognition', (e) => {
       if (e.RecognitionStatus === 'Success') console.log(e);
     });
 
-    service.sendFile('future-of-flying.wav');
+    recognizer.sendFile('future-of-flying.wav')
+      .then(_ => console.log('file sent.'))
+      .catch(console.error);
   }
-});
+}).catch(console.error);
 
 ```
 
-This configuration will use your subscription key to create an access token with Microsoft's service.
+You can also use this library with the async/await pattern!
+
+
+```js
+const speechService = require('ms-bing-speech-service');
+
+(async function() {
+
+  const options = {
+    language: 'en-US',
+    subscriptionKey: '<your Bing Speech API key>'
+  };
+	
+  const recognizer = new speechService(options);
+  await recognizer.start();
+
+  recognizer.on('recognition', (e) => {
+    if (e.RecognitionStatus === 'Success') console.log(e);
+  });
+  
+  recognizer.on('turn.end', (e) => {
+    console.log('recognizer is finished.');
+    
+    await recognizer.stop();
+    console.log('recognizer is stopped.');
+  });
+	
+  await recognizer.sendFile('future-of-flying.wav');
+  console.log('file sent.');
+
+})();
+
+```
+
+And in the browser (a global window distribution is also available in dist directory). Use an ArrayBuffer instance in place of a file path:
+
+```js
+import speechService from 'MsBingSpeechService';
+
+const file = myArrayBuffer;
+
+const options = {
+  language: 'en-US',
+  subscriptionKey: '<your Bing Speech API key>'
+}
+
+const recognizer = new speechService(options);
+
+recognizer.start()
+  .then(_ => {
+    console.log('service started');
+
+    recognizer.on('recognition', (e) => {
+      if (e.RecognitionStatus === 'Success') console.log(e);
+    });
+    
+    recognizer.sendFile(file);
+  }).catch((error) => console.error('could not start service:', error));
+```
+
+The above examples will use your subscription key to create an access token with Microsoft's service.
 
 In some instances you may not want to share your subscription key directly with your application. If you're creating an app with multiple users, you may want to issue access tokens from an external API so each user can connect to the speech service without exposing your subscription key.
 
@@ -50,8 +113,8 @@ To do this, replace "subscriptionKey" in the above code example with "accessToke
 
 ```js
 const options = {
-    language: 'en-US',
-    accessToken: '<your access token here>'
+  language: 'en-US',
+  accessToken: '<your access token here>'
 };
 
 ```
@@ -76,17 +139,16 @@ const options = {
 
 const recognizer = new speechService(options);
 
-recognizer.start((error, service) => {
-  if (!error) {
-    console.log('custom speech service started');
-
-    service.on('recognition', (e) => {
+recognizer
+  .start()
+  .then(_ => {
+    recognizer.on('recognition', (e) => {
       if (e.RecognitionStatus === 'Success') console.log(e);
     });
 
-    service.sendFile('future-of-flying.wav');
+    recognizer.sendFile('future-of-flying.wav');
   }
-});
+}).catch(console.error);
 
 ```
 
@@ -119,62 +181,66 @@ Available options are below:
 | `format` | `String` | file format you'd like the text to speech to be returned as. Choose from `simple` or `detailed`                          | `'simple'` | no       |
 
 
-### recognizer.start(callback)
+### recognizer.start()
 
-+ `callback` _Function_
-
-Connects to the Speech API websocket on your behalf and returns the websocket instance once connected. Callback follows the errorback pattern.
+Connects to the Speech API websocket on your behalf. Returns a promise.
 
 ```js
-recognizer.start((error, service) => {
-  if (!error) console.log('recognizer service started.');
-});
+recognizer.start().then(() => {
+ console.log('recognizer service started.');
+}).catch(console.error);
 ```
 
-### recognizer.stop(callback)
+### recognizer.stop()
 
-+ `callback` _Function_
-
-Disconnects from the established websocket connection to the Speech API. Callback follows the errorback pattern.
+Disconnects from the established websocket connection to the Speech API. Returns a promise.
 
 ```js
-recognizer.stop((error) => {
-  if (!error) console.log('recognizer service stopped.');
-});
+recognizer.stop().then(() => {
+  console.log('recognizer service stopped.');
+}).catch(console.error);
 ```
 
 ### recognizer.sendStream(stream)
 
 + `stream` _Readable Stream_
 
-Sends an audio payload stream to the Speech API websocket connection. Audio payload is a native NodeJS Buffer stream (eg. a readable stream).
+Sends an audio payload stream to the Speech API websocket connection. Audio payload is a native NodeJS Buffer stream (eg. a readable stream) or an ArrayBuffer in the browser. Returns a promise.
 
 See the 'Sending Audio' section of the [official Speech API docs](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/api-reference-rest/websocketprotocol#supported-audio-encodings) for details on the data format needed.
 
 ```js
-recognizer.sendStream(myAudioBufferStream);
+recognizer.sendStream(myAudioBufferStream).then(() => {
+  console.log('stream sent.');
+}).catch(console.error);
 ```
 
-### service.sendFile(filepath, callback)
+### recognizer.sendFile(filepath)
 
 + `filepath` _String_
-+ `callback` _Function_ (optional)
 
-Streams an audio file from disk to the Speech API websocket connection. Optional callback follows errorback pattern.
+Streams an audio file from disk to the Speech API websocket connection. Also accepts a NodeJS Buffer or browser ArrayBuffer. Returns a promise.
 
 See the 'Sending Audio' section of the [official Speech API docs](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/api-reference-rest/websocketprotocol#supported-audio-encodings) for details on the data format needed for the audio file.
 
 ```js
-service.sendFile('/path/to/audiofile.wav', (error) => {
-  if (!error) console.log('file sent.');
-});
+recognizer.sendFile('/path/to/audiofile.wav').then(() => {
+  console.log('file sent.');
+}).catch(console.error);
+```
+or
+
+```js
+recognizer.sendFile(myArrayBuffer).then(() => {
+  console.log('file sent.');
+}).catch(console.error);
 ```
 
 ### Events
 
-You can listen to the following events on the service instance:
+You can listen to the following events on the recognizer instance:
 
-### service.on('recognition', callback)
+### recognizer.on('recognition', callback)
 
 + `callback` _Function_
 
@@ -182,13 +248,13 @@ Event listener for incoming recognition message payloads from the Speech API. Me
 
 
 ```js
-service.on('recognition', (message) => {
+recognizer.on('recognition', (message) => {
   console.log('new recognition:', message);
 });
 
 ```
 
-### service.on('close', callback)
+### recognizer.on('close', callback)
 
 + `callback` _Function_
 
@@ -196,14 +262,14 @@ Event listener for Speech API websocket connection closures.
 
 
 ```js
-service.on('close', () => {
+recognizer.on('close', () => {
   console.log('Speech API connection closed');
 });
 
 
 ```
 
-### service.on('error', callback)
+### recognizer.on('error', callback)
 
 + `callback` _Function_
 
@@ -211,7 +277,7 @@ Event listener for incoming Speech API websocket connection errors.
 
 
 ```js
-service.on('error', (error) => {
+recognizer.on('error', (error) => {
   console.log(error);
 });
 
@@ -219,7 +285,7 @@ service.on('error', (error) => {
 ```
 
 
-### service.on('turn.start', callback)
+### recognizer.on('turn.start', callback)
 
 + `callback` _Function_
 
@@ -227,29 +293,29 @@ Event listener for Speech API websocket 'turn.start' event. Fires when service d
 
 
 ```js
-service.on('turn.start', () => {
+recognizer.on('turn.start', () => {
   console.log('start turn has fired.');
 });
 
 
 ```
 
-### service.on('turn.end', callback)
+### recognizer.on('turn.end', callback)
 
 + `callback` _Function_
 
-Event listener for Speech API websocket 'turn.end' event. Fires after 'speech.endDetected' event and the turn has ended.
+Event listener for Speech API websocket 'turn.end' event. Fires after 'speech.endDetected' event and the turn has ended. This event is an ideal one to listen to in order to be notified when an entire stream of audio has been processed and all results have been received.
 
 
 ```js
-service.on('turn.end', () => {
+recognizer.on('turn.end', () => {
   console.log('end turn has fired.');
 });
 
 
 ```
 
-### service.on('speech.startDetected', callback)
+### recognizer.on('speech.startDetected', callback)
 
 + `callback` _Function_
 
@@ -257,14 +323,14 @@ Event listener for Speech API websocket 'speech.startDetected' event. Fires when
 
 
 ```js
-service.on('speech.startDetected', () => {
+recognizer.on('speech.startDetected', () => {
   console.log('speech startDetected has fired.');
 });
 
 
 ```
 
-### service.on('speech.endDetected', callback)
+### recognizer.on('speech.endDetected', callback)
 
 + `callback` _Function_
 
@@ -272,14 +338,14 @@ Event listener for Speech API websocket 'speech.endDetected' event. Fires when t
 
 
 ```js
-service.on('speech.endDetected', () => {
+recognizer.on('speech.endDetected', () => {
   console.log('speech endDetected has fired.');
 });
 
 
 ```
 
-### service.on('speech.phrase', callback)
+### recognizer.on('speech.phrase', callback)
 
 + `callback` _Function_
 
@@ -287,13 +353,13 @@ Identical to the `recognition` event. Event listener for incoming recognition me
 
 
 ```js
-service.on('speech.phrase', (message) => {
+recognizer.on('speech.phrase', (message) => {
   console.log('new phrase:', message);
 });
 
 ```
 
-### service.on('speech.hypothesis', callback)
+### recognizer.on('speech.hypothesis', callback)
 
 + `callback` _Function_
 
@@ -301,14 +367,14 @@ Event listener for Speech API websocket 'speech.hypothesis' event. **Only fires 
 
 
 ```js
-service.on('speech.hypothesis', (message) => {
+recognizer.on('speech.hypothesis', (message) => {
   console.log('new hypothesis:', message);
 });
 
 
 ```
 
-### service.on('speech.fragment', callback)
+### recognizer.on('speech.fragment', callback)
 
 + `callback` _Function_
 
@@ -316,7 +382,7 @@ Event listener for Speech API websocket 'speech.fragment' event. **Only fires wh
 
 
 ```js
-service.on('speech.fragment', (message) => {
+recognizer.on('speech.fragment', (message) => {
   console.log('new fragment:', message);
 });
 
