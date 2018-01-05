@@ -5,7 +5,8 @@
   "main": "node.entry.js",
   "module": "dist/MsBingSpeechService.js",
   "scripts": {
-    "test": "node test/all.test.js | tap-spec"
+    "test": "nyc node test/all.test.js | tap-spec",
+    "cover": "nyc report --reporter=text-lcov | coveralls"
   },
   "author": "Suz Hinton",
   "license": "MIT",
@@ -24,6 +25,7 @@
     "babel-minify-webpack-plugin": "^0.2.0",
     "babel-preset-env": "^1.6.1",
     "dotenv": "^4.0.0",
+    "nyc": "^11.4.1",
     "proxyquire": "^1.8.0",
     "tap-spec": "^4.1.1",
     "tape": "^4.8.0",

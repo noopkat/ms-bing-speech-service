@@ -1,0 +1,13 @@
+language: node_js
+node_js:
+- '7'
+- '6'
+- '5'
+before_script:
+- npm install -g nyc
+- npm install -g coveralls
+after_success:
+- npm run cover
+env:
+  matrix:
+    secure: btPKftI478WggsOAD7OgFR6mjE+viMPxuR/mjGdvIkq4dYE72UTdZIXuB9Tc05/psZKjf+664FN+yD2ZwoYvRE+vn6xVn+0wzTqTftu8lHUfNfW7iEOwkjB8i6a55k3R4GpD3DB/a1Ud0YY74ZiD6VPOcc94iHPeWxobpYLp8yA91/UDZsqiQiCK2OFl/3KOCWFIHKUOZ1CK+p3QM64aBlYWWejCuNo2neF1jHvfSrGUkOZe3K3s48iuo/Re3MTQtnFWFZLekJRjHCeoICsbbYv0INmVr29x1ByfuGhwMjhDLVt1pcCxmMfE5aVJoJqlkr6O98hUgXXygF5GcT0mTTtxwmWxiwYvIdUY789e4J5PLWmBMJN8zPs/dx/GyeyVDAuwyo5pRLVwS84EOgTsFWzl/BHIWzxPxPuxz9aP/QK28TQktMnEAeXz4BoOlcWnDGFRuWp7HuevhLwdrMZRQBRCzXpw6HBKvuSsJIFrLi2lAAhnBskkaMOg4Ab/JS0c8BYtViORONJeeNYZCmLJDfulyHJEkdzO29qOWHezOXP0WZoD1hb0jd39AZLBZVDCSXmDBWSIJGVQyIR77RSh4iE9yxy5rNYB9kwNUz3CCvtZHhNcmSg/eg9o6n9NjghT/sPp9aAERbWTsl8fLevaWDDODxsAkKSecj6fNw+T1lY=
