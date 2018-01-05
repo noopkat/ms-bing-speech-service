@@ -54,8 +54,8 @@ module.exports = function (dependencies) {
     };
 
     _resetTelemetry(props) {
-      const metrics = (Array.isArray(props) && props.includes('Metrics')) ? [] : this.telemetry.Metrics;
-      const receivedMessages = (Array.isArray(props) && props.includes('ReceivedMessages')) ? receivedTelemetryTemplate : this.telemetry.ReceivedMessages;
+      const metrics = (Array.isArray(props) && props.indexOf('Metrics') > -1) ? [] : this.telemetry.Metrics;
+      const receivedMessages = (Array.isArray(props) && props.indexOf('ReceivedMessages') > -1) ? receivedTelemetryTemplate : this.telemetry.ReceivedMessages;
 
       this.telemetry.Metrics = metrics;
       this.telemetry.ReceivedMessages = receivedMessages;
@@ -110,8 +110,7 @@ module.exports = function (dependencies) {
     onMessage({data}) {
       const message = messageParser.parse(data);
       const messagePath = message.path;
-      // change this to just look for 'content type application/json' in message object
-      const body = richPaths.includes(messagePath) ? JSON.parse(message.body) : {};
+      const body = message.body ? JSON.parse(message.body) : {};
 
       debug(messagePath);
 

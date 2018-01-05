@@ -1,8 +1,11 @@
 language: node_js
 node_js:
+- '9'
+- '8'
 - '7'
 - '6'
 - '5'
+- '4'
 before_script:
 - npm install -g nyc
 - npm install -g coveralls

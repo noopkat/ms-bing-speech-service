@@ -1,3 +1,18 @@
 {
-  "presets": ["env"]
+  "env": {
+    "node": {
+      "presets": [
+        ["env", {
+          "targets": {
+            "node": "4"
+          }
+        }]
+      ]
+    },
+    "browser": {
+      "presets": [
+        ["env"]
+      ]
+    }
+  }
 }
