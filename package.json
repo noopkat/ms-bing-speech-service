@@ -36,6 +36,9 @@
   "directories": {
     "lib": "lib"
   },
+  "browser": {
+    "./node.entry.js": "./dist/MsBingSpeechService.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/noopkat/ms-bing-speech-service.git"
