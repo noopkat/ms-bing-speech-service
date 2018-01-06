@@ -110,7 +110,7 @@ module.exports = function (dependencies) {
     onMessage({data}) {
       const message = messageParser.parse(data);
       const messagePath = message.path;
-      const body = message.body ? JSON.parse(message.body) : {};
+      const body = message.body && richPaths.indexOf(messagePath) > -1 ? JSON.parse(message.body) : {};
 
       debug(messagePath);
 
