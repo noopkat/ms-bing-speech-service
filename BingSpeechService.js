@@ -22,7 +22,7 @@ module.exports = function (dependencies) {
     'turn.end': []
   };
 
-  const richPaths = ['speech.phrase', 'speech.hypothesis', 'speech.fragment'];
+  const richPaths = ['turn.start', 'turn.end', 'speech.phrase', 'speech.hypothesis', 'speech.fragment'];
 
   const defaultOptions = {
     format: 'simple',
@@ -110,7 +110,7 @@ module.exports = function (dependencies) {
     onMessage({data}) {
       const message = messageParser.parse(data);
       const messagePath = message.path;
-      const body = message.body && richPaths.indexOf(messagePath) > -1 ? JSON.parse(message.body) : {};
+      const body = (message.body && richPaths.indexOf(messagePath) > -1) ? JSON.parse(message.body) : {};
 
       debug(messagePath);
 

@@ -31,7 +31,7 @@ module.exports = function (dependencies) {
     'turn.end': []
   };
 
-  var richPaths = ['speech.phrase', 'speech.hypothesis', 'speech.fragment'];
+  var richPaths = ['turn.start', 'turn.end', 'speech.phrase', 'speech.hypothesis', 'speech.fragment'];
 
   var defaultOptions = {
     format: 'simple',
@@ -137,7 +137,7 @@ module.exports = function (dependencies) {
 
         var message = messageParser.parse(data);
         var messagePath = message.path;
-        var body = message.body ? JSON.parse(message.body) : {};
+        var body = message.body && richPaths.indexOf(messagePath) > -1 ? JSON.parse(message.body) : {};
 
         debug(messagePath);
 
