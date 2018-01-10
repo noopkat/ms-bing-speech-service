@@ -68,7 +68,7 @@ const speechService = require('ms-bing-speech-service');
     if (e.RecognitionStatus === 'Success') console.log(e);
   });
   
-  recognizer.on('turn.end', (e) => {
+  recognizer.on('turn.end', async (e) => {
     console.log('recognizer is finished.');
     
     await recognizer.stop();
