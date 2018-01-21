@@ -133,7 +133,9 @@ test('[ms-bing-speech-service] method onMessage', function (t) {
       End : '',
     });
 
-    recognizer.on('turn.start', () => t.pass('turn.start: event fired'));
+    recognizer.on('turn.start', (e) => {
+      t.pass('turn.start: event fired');
+    })
     recognizer.onMessage({data: mockMessages['turn.start']});
     t.equal(recognizer.telemetry.ReceivedMessages['turn.start'].length, 1, 'turn.start: telemetry added ');
 
