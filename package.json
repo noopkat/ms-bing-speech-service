@@ -1,6 +1,6 @@
 {
   "name": "ms-bing-speech-service",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "",
   "main": "node.entry.js",
   "module": "dist/MsBingSpeechService.js",
