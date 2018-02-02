@@ -39,7 +39,8 @@ module.exports = function (dependencies) {
       debug = (this.options.debug || globalDebugMode) ? dependencies.debug : function(){};
 
       const bingServiceUrl = `wss://speech.platform.bing.com/speech/recognition/${this.options.mode}/cognitiveservices/v1?language=${this.options.language}&format=${this.options.format}`;
-
+      
+      this.customSpeech = !!this.options.serviceUrl;
       this.serviceUrl = this.options.serviceUrl || bingServiceUrl;
       this.issueTokenUrl = this.options.issueTokenUrl;
 
@@ -156,7 +157,7 @@ module.exports = function (dependencies) {
 
       return this._getAccessToken()
         .then((accessToken) => {
-          debug('access token request successful');
+          debug('access token request successful: ' + accessToken);
 
           this.telemetry.Metrics.push({
             Name: 'Connection',
@@ -186,10 +187,17 @@ module.exports = function (dependencies) {
         'Authorization': `Bearer ${accessToken}`,
         'X-ConnectionId': this.connectionGuid
       };
-      const headerParamsQueries = Object.keys(headerParams).map((header) => `&${header.replace('-', '')}=${headerParams[header]}`);
-      const authorizedServiceUrl = `${this.serviceUrl}${encodeURI(headerParamsQueries.join(''))}`;
 
-      const client = new websocket(authorizedServiceUrl);
+      let authorizedServiceUrl = '';
+
+      if (this.customSpeech) {
+        authorizedServiceUrl = this.serviceUrl;
+      } else {
+        const headerParamsQueries = Object.keys(headerParams).map((header) => `&${header.replace('-', '')}=${headerParams[header]}`);
+        authorizedServiceUrl = `${this.serviceUrl}${encodeURI(headerParamsQueries.join(''))}`;
+      }
+
+      const client = new websocket(authorizedServiceUrl, null, null, headerParams);
 
       return this._setUpClientEvents(client);
     };
