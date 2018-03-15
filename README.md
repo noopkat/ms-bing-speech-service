@@ -180,7 +180,7 @@ Available options are below:
 | `subscriptionKey`         | `String`  | your [Speech API key](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/how-to/how-to-authentication?tabs=Powershell#using-subscription-key)                                                                                  | n/a     | yes      |
 | `accessToken`         | `String`  | your [Speech access token](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/how-to/how-to-authentication?tabs=Powershell#using-authorization-token). Only required if subscriptionKey option not supplied.                                                                                  | n/a     | no      |
 | `language`                | `String`  | the language you want to translate from. See supported languages in the [official Microsoft Speech API docs](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/api-reference-rest/bingvoicerecognition#recognition-language).                                                                  | `'en-US'`  | no       |
-| `mode` | `String` | which recognition mode you'd like to use. Choose from `interative`, `conversation`, or `dictation`                          | `'conversation'` | no       |
+| `mode` | `String` | which recognition mode you'd like to use. Choose from `interactive`, `conversation`, or `dictation`                          | `'conversation'` | no       |
 | `format` | `String` | file format you'd like the text to speech to be returned as. Choose from `simple` or `detailed`                          | `'simple'` | no       |
 
 
