@@ -105,6 +105,10 @@ module.exports = function (dependencies) {
           inputStream.on('data', _this2.sendChunk.bind(_this2));
 
           inputStream.on('end', function () {
+            // To signal end-of-speech, client applications send an audio chunk message with a zero-length body.
+            // Speech Service interprets this message as the end of the incoming audio stream.
+            // PER https://docs.microsoft.com/en-us/azure/cognitive-services/speech/api-reference-rest/websocketprotocol#client-end-of-speech-detection
+            _this2.sendChunk('');
             debug('audio stream end');
             resolve();
           });
