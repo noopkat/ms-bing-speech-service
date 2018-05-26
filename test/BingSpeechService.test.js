@@ -2,7 +2,8 @@ const test = require('tape');
 const proxyquire = require('proxyquire');
 const mockSocket = require('./helpers/mockSocketServer');
 const mockMessages = require('./helpers/messages');
-const speechService = proxyquire('../', {websocket: mockSocket, 'node-fetch': function() { return Promise.resolve({text: function() {return '456'}})} });
+const mockFetch = require('./helpers/mockFetch');
+const speechService = proxyquire('../', {websocket: mockSocket, 'node-fetch': mockFetch});
 
 test('[ms-bing-speech-recognizer] defaults are set correctly', function (t) {
   t.plan(5);

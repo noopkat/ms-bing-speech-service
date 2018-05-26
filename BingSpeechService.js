@@ -39,7 +39,7 @@ module.exports = function (dependencies) {
       debug = (this.options.debug || globalDebugMode) ? dependencies.debug : function(){};
 
       const bingServiceUrl = `wss://speech.platform.bing.com/speech/recognition/${this.options.mode}/cognitiveservices/v1?language=${this.options.language}&format=${this.options.format}`;
-      
+
       this.customSpeech = !!this.options.serviceUrl;
       this.serviceUrl = this.options.serviceUrl || bingServiceUrl;
       this.issueTokenUrl = this.options.issueTokenUrl;
@@ -109,7 +109,7 @@ module.exports = function (dependencies) {
       debug('requesting access token');
       // request token
       return fetch(this.issueTokenUrl, postRequest)
-        .then((res) => res.text());
+        .then((res) => res.ok ? res.text() : res.json());
     };
 
     onMessage({data}) {
@@ -161,6 +161,12 @@ module.exports = function (dependencies) {
 
       return this._getAccessToken()
         .then((accessToken) => {
+          // if we got JSON back, it is not a 200 and should contain an error message
+          if (typeof accessToken === 'object') {
+            const errorMessage = accessToken.message || 'no additional details available.';
+            return Promise.reject(`accessToken error: ${errorMessage}`);
+          }
+
           debug('access token request successful: ' + accessToken);
 
           this.telemetry.Metrics.push({
