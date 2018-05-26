@@ -212,9 +212,17 @@ Sends an audio payload stream to the Speech API websocket connection. Audio payl
 
 See the 'Sending Audio' section of the [official Speech API docs](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/api-reference-rest/websocketprotocol#supported-audio-encodings) for details on the data format needed.
 
+NodeJS example:
 ```js
-recognizer.sendStream(myAudioBufferStream).then(() => {
-  console.log('stream sent.');
+const fs = require('fs');
+const audioStream = fs.createReadableStream('speech.wav');
+
+recognizer.sendStream(audioStream).then(() => {
+ recognizer.on('recognition', (message) => {
+  console.log('new recognition:', message);
+ });
+
+ console.log('stream sent.');
 }).catch(console.error);
 ```
 
@@ -231,12 +239,17 @@ recognizer.sendFile('/path/to/audiofile.wav').then(() => {
   console.log('file sent.');
 }).catch(console.error);
 ```
+
 or
 
 ```js
-recognizer.sendFile(myArrayBuffer).then(() => {
-  console.log('file sent.');
-}).catch(console.error);
+
+fetch('speech.wav')
+  .then((response) => response.arrayBuffer())
+  .then((audioBuffer) => recognizer.sendFile(audioBuffer))
+  .then((recognizer) => console.log('file sent'))
+  .catch((error) => console.log('something went wrong:', error));
+
 ```
 
 ### Events
