@@ -207,7 +207,7 @@ module.exports = function (dependencies) {
         authorizedServiceUrl = `${this.serviceUrl}${encodeURI(headerParamsQueries.join(''))}`;
       }
 
-      const client = new websocket(authorizedServiceUrl, null, null, headerParams);
+      const client = new websocket(authorizedServiceUrl);
 
       return this._setUpClientEvents(client);
     };
