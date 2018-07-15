@@ -132,7 +132,7 @@ module.exports = function (dependencies) {
         debug('requesting access token');
         // request token
         return fetch(this.issueTokenUrl, postRequest).then(function (res) {
-          return res.text();
+          return res.ok ? res.text() : res.json();
         });
       }
     }, {
@@ -192,6 +192,12 @@ module.exports = function (dependencies) {
         this.connectionGuid = uuid().replace(/-/g, '');
 
         return this._getAccessToken().then(function (accessToken) {
+          // if we got JSON back, it is not a 200 and should contain an error message
+          if (typeof accessToken === 'object') {
+            var errorMessage = accessToken.message || 'no additional details available.';
+            return Promise.reject(`accessToken error: ${errorMessage}`);
+          }
+
           debug('access token request successful: ' + accessToken);
 
           _this3.telemetry.Metrics.push({
@@ -210,11 +216,11 @@ module.exports = function (dependencies) {
         var _this4 = this;
 
         return new Promise(function (resolve, reject) {
-          if ((!_this4.connection || !_this4.connection.readyState === 1) && callback) return resolve();
-          _this4.once('close', resolve());
-          _this4.once('error', reject());
-          _this4.connection.close();
+          if (!_this4.connection || !_this4.connection.readyState === 1) return resolve();
+          _this4.once('close', resolve);
+          _this4.once('error', reject);
           debug('closing speech websocket connection');
+          _this4.connection.close();
         });
       }
     }, {

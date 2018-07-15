@@ -182,11 +182,11 @@ module.exports = function (dependencies) {
 
     stop() {
       return new Promise((resolve, reject) => {
-        if ((!this.connection || !this.connection.readyState === 1) && callback) return resolve();
-        this.once('close', resolve());
-        this.once('error', reject());
-        this.connection.close();
+        if (!this.connection || !this.connection.readyState === 1) return resolve();
+        this.once('close', resolve);
+        this.once('error', reject);
         debug('closing speech websocket connection');
+        this.connection.close();
       });
     };
 
