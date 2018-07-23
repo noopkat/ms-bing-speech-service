@@ -7,8 +7,8 @@
   "scripts": {
     "test": "nyc node test/all.test.js | tap-spec",
     "cover": "nyc report --reporter=text-lcov | coveralls",
-    "build-browser": "BABEL_ENV=browser webpack -p",
-    "build-node": "BABEL_ENV=node babel ./BingSpeechService.js -o ./dist/BingSpeechServiceNode.js"
+    "build-browser": "NODE_ENV=production BABEL_ENV=browser DEBUG=false webpack -p",
+    "build-node": "NODE_ENV=production BABEL_ENV=node DEBUG=false babel ./BingSpeechService.js -o ./dist/BingSpeechServiceNode.js"
   },
   "author": "Suz Hinton",
   "license": "MIT",
@@ -25,6 +25,8 @@
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-minify-webpack-plugin": "^0.2.0",
+    "babel-plugin-minify-dead-code-elimination": "^0.4.3",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "babel-preset-env": "^1.6.1",
     "dotenv": "^4.0.0",
     "nyc": "^11.4.1",

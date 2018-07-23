@@ -7,12 +7,16 @@
             "node": "4"
           }
         }]
+      ],
+      "plugins": [
+        "babel-plugin-transform-inline-environment-variables",
+        "babel-plugin-minify-dead-code-elimination"
       ]
     },
     "browser": {
       "presets": [
         ["env"]
-      ]
+      ],
     }
   }
 }
