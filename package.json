@@ -7,8 +7,8 @@
   "scripts": {
     "test": "nyc node test/all.test.js | tap-spec",
     "cover": "nyc report --reporter=text-lcov | coveralls",
-    "build-browser": "NODE_ENV=production BABEL_ENV=browser DEBUG=false webpack -p",
-    "build-node": "NODE_ENV=production BABEL_ENV=node DEBUG=false babel ./BingSpeechService.js -o ./dist/BingSpeechServiceNode.js"
+    "build-browser": "NODE_ENV=production BABEL_ENV=browser webpack -p",
+    "build-node": "NODE_ENV=production BABEL_ENV=node babel ./BingSpeechService.js -o ./dist/BingSpeechServiceNode.js"
   },
   "author": "Suz Hinton",
   "license": "MIT",

@@ -9,14 +9,18 @@
         }]
       ],
       "plugins": [
-        "babel-plugin-transform-inline-environment-variables",
+        ["babel-plugin-transform-inline-environment-variables", {
+          "exclude": [
+            "DEBUG"
+          ]
+        }],
         "babel-plugin-minify-dead-code-elimination"
       ]
     },
     "browser": {
       "presets": [
         ["env"]
-      ],
+      ]
     }
   }
 }

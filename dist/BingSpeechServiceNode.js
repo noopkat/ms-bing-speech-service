@@ -19,7 +19,7 @@ module.exports = function (dependencies) {
 
 
   var debug = void 0;
-  var globalDebugMode = process && process.env && 'false';
+  var globalDebugMode = process && process.env && process.env.DEBUG;
 
   var receivedTelemetryTemplate = {
     'turn.start': [],
