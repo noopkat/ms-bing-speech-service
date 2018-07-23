@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const MinifyPlugin = require('babel-minify-webpack-plugin');
 
 const importableConfig = {
@@ -8,6 +9,9 @@ const importableConfig = {
     filename: 'MsBingSpeechService.js',
     libraryTarget: 'umd'
   },
+  plugins: [
+    new webpack.EnvironmentPlugin(['NODE_ENV', 'BABEL_ENV', 'DEBUG']),
+  ],
   module: {
     rules: [
       { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' }
@@ -23,7 +27,8 @@ const importableMinConfig = {
     libraryTarget: 'umd'
   },
   plugins: [
-    new MinifyPlugin()
+    new MinifyPlugin(),
+    new webpack.EnvironmentPlugin(['NODE_ENV', 'BABEL_ENV', 'DEBUG']),
   ],
   module: {
     rules: [
@@ -42,7 +47,8 @@ const globalConfig = {
     libraryTarget: 'window'
   },
   plugins: [
-    new MinifyPlugin()
+    new MinifyPlugin(),
+    new webpack.EnvironmentPlugin(['NODE_ENV', 'BABEL_ENV', 'DEBUG']),
   ],
   module: {
     rules: [
