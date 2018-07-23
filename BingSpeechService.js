@@ -207,7 +207,9 @@ module.exports = function (dependencies) {
         authorizedServiceUrl = `${this.serviceUrl}${encodeURI(headerParamsQueries.join(''))}`;
       }
 
-      const client = new websocket(authorizedServiceUrl);
+      const client = process.env.BABEL_ENV === 'node' 
+        ? new websocket(authorizedServiceUrl, null, null, headerParams)
+        : new websocket(authorizedServiceUrl)
 
       return this._setUpClientEvents(client);
     };
