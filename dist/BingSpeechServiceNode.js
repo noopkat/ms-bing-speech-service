@@ -19,7 +19,7 @@ module.exports = function (dependencies) {
 
 
   var debug = void 0;
-  var globalDebugMode = process && process.env && process.env.DEBUG;
+  var globalDebugMode = process && process.env && 'false';
 
   var receivedTelemetryTemplate = {
     'turn.start': [],
@@ -95,7 +95,7 @@ module.exports = function (dependencies) {
       value: function sendStream(inputStream) {
         var _this2 = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function (resolve) {
           _this2.telemetry.Metrics.push({
             Start: new Date().toISOString(),
             Name: 'Microphone',
@@ -159,7 +159,7 @@ module.exports = function (dependencies) {
             return m.Name === 'Microphone';
           }).pop();
           microphoneMetric.End = new Date().toISOString();
-        };
+        }
 
         if (messagePath === 'turn.end') {
           this.turn.active = false;
@@ -267,7 +267,7 @@ module.exports = function (dependencies) {
             if (error && error.code !== 1000) reject(error);
           };
 
-          client.onopen = function (event) {
+          client.onopen = function () {
             debug('connected to websocket');
 
             _this5.connection = client;
@@ -293,8 +293,6 @@ module.exports = function (dependencies) {
 
     return BingSpeechService;
   }(eventEmitter);
-
-  ;
 
   return BingSpeechService;
 };
