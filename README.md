@@ -43,8 +43,8 @@ recognizer
     recognizer.sendFile('future-of-flying.wav')
       .then(_ => console.log('file sent.'))
       .catch(console.error);
-  }
-}).catch(console.error);
+  })
+  .catch(console.error);
 
 ```
 
