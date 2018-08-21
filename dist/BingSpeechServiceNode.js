@@ -31,7 +31,7 @@ module.exports = function (dependencies) {
     'turn.end': []
   };
 
-  var richPaths = ['turn.start', 'turn.end', 'speech.phrase', 'speech.hypothesis', 'speech.fragment'];
+  var richPaths = ['turn.start', 'turn.end', 'speech.phrase', 'speech.hypothesis', 'speech.fragment', 'speech.endDetected'];
 
   var defaultOptions = {
     format: 'simple',
