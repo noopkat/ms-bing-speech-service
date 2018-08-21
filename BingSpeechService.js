@@ -22,7 +22,7 @@ module.exports = function (dependencies) {
     'turn.end': []
   };
 
-  const richPaths = ['turn.start', 'turn.end', 'speech.phrase', 'speech.hypothesis', 'speech.fragment'];
+  const richPaths = ['turn.start', 'turn.end', 'speech.phrase', 'speech.hypothesis', 'speech.fragment', 'speech.endDetected'];
 
   const defaultOptions = {
     format: 'simple',
