@@ -23,7 +23,7 @@ module.exports = {
       X-RequestId: 123e4567e89b12d3a456426655440000\r
 \r
       {\r
-        "Offset": 0\r
+        "Offset": 300000\r
       }`,
 
     'turn.start': `Path: turn.start\r
