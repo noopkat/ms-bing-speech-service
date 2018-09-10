@@ -223,7 +223,7 @@ module.exports = function (dependencies) {
 
         client.onclose = (error) => {
           debug('socket close:', error);
-          this.emit('close');
+          this.emit('close', error);
           if (error && error.code !== 1000) reject(error);
         }
 
