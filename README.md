@@ -278,8 +278,10 @@ Event listener for Speech API websocket connection closures.
 
 
 ```js
-recognizer.on('close', () => {
+recognizer.on('close', (error) => {
   console.log('Speech API connection closed');
+  // you can optionally look for an error object (most closures currently report a 1006 even when intentional closure happens but we're looking into it!)
+  console.log(error);
 });
 
 
