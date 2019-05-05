@@ -1,5 +1,8 @@
-[![Build Status](https://api.travis-ci.org/noopkat/ms-bing-speech-service.svg?branch=master)](https://travis-ci.org/noopkat/ms-bing-speech-service)
-[![Coverage Status](https://coveralls.io/repos/github/noopkat/ms-bing-speech-service/badge.svg?branch=master)](https://coveralls.io/github/noopkat/ms-bing-speech-service?branch=browser-compat)
+![deprecated label](https://img.shields.io/badge/status-deprecated-red.svg)
+
+**This library is now deprecated due to Microsoft's release of an official websocket supported [NodeJS/JavaScript SDK for Microsoft Speech Service](https://www.npmjs.com/package/microsoft-cognitiveservices-speech-sdk). Please use that instead of this. Thanks! 🙇🏼‍♀️**
+
+---
 
 # Microsoft Speech to Text Service
 
